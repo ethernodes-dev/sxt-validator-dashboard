@@ -15,7 +15,7 @@
     "to": "now"
   },
   "schemaVersion": 41,
-  "version": 38,
+  "version": 42,
   "style": "dark",
   "panels": [
     {
@@ -1139,883 +1139,710 @@
       },
       "panels": [
         {
-          "title": "Active validators",
-          "type": "stat",
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
           "datasource": "Prometheus",
+          "description": "",
           "gridPos": {
-            "h": 4,
-            "w": 3,
             "x": 0,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 10
-                  },
-                  {
-                    "color": "#5000BF",
-                    "value": 15
-                  }
-                ]
-              },
-              "color": {
-                "mode": "thresholds"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_network_active_validators",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Validators currently producing blocks and signing commitments"
-        },
-        {
-          "title": "Waiting",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 2,
-            "x": 3,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">ACTIVE VALIDATORS</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 3,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_waiting_validators",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Validators registered but not yet in the active set"
-        },
-        {
-          "title": "Nominators",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 5,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">WAITING</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 6,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_total_nominators",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Token holders delegating stake to validators"
-        },
-        {
-          "title": "Total stake (SXT)",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 8,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">NOMINATORS</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 18,
+            "y": 1,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_era_total_stake",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Combined SXT staked across all active validators this era"
-        },
-        {
-          "title": "Last era reward",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 4,
-            "x": 12,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">TOTAL STAKE (SXT)</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 1,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 12,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_last_era_reward",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Total SXT distributed to validators in the previous era"
-        },
-        {
-          "title": "Max validators",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 16,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">LAST ERA REWARD</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+              "decimals": 1
             },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+            "overrides": []
           },
-          "targets": [
+          "transformations": [
             {
-              "expr": "sxt_staking_target_validator_count",
-              "legendFormat": ""
-            }
-          ],
-          "transparent": false,
-          "description": "Target number of validators the network elects each era"
-        },
-        {
-          "title": "Era reward points",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 5,
-            "x": 19,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 15,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_era_total_reward_points",
-              "legendFormat": ""
-            }
-          ],
-          "transparent": false,
-          "description": "Total reward points earned by all validators this era"
-        },
-        {
-          "title": "Stake per validator",
-          "type": "bargauge",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 14,
-            "w": 12,
-            "x": 0,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#5000BF",
-                    "value": null
-                  }
-                ]
-              },
-              "min": 0
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "showUnfilled": true,
-            "minVizWidth": 0,
-            "minVizHeight": 25,
-            "valueMode": "color",
-            "namePlacement": "left"
-          },
-          "targets": [
-            {
-              "expr": "sort_desc(sxt_validator_total_stake)",
-              "legendFormat": "{{address}}",
+              "refId": "A",
+              "legendFormat": "",
               "instant": true,
-              "format": "time_series",
-              "refId": "A"
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Total stake backing each active validator — higher stake means more network weight"
-        },
-        {
-          "title": "Era points per validator",
-          "type": "bargauge",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 14,
-            "w": 12,
-            "x": 12,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#CC0AAC",
-                    "value": null
-                  }
-                ]
-              },
-              "min": 0
-            }
-          },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "showUnfilled": true,
-            "minVizWidth": 0,
-            "minVizHeight": 25,
-            "valueMode": "color",
-            "namePlacement": "left"
-          },
-          "targets": [
-            {
-              "expr": "sort_desc(sxt_validator_era_points)",
-              "legendFormat": "{{address}}",
-              "instant": true,
-              "format": "time_series",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Reward points earned this era — proportional to blocks produced and duties fulfilled"
-        },
-        {
-          "title": "All validators",
-          "description": "Full list of active and waiting validators with stake, commission, nominators and era performance",
-          "type": "table",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 14,
-            "w": 24,
-            "x": 0,
-            "y": 19
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 1,
-              "custom": {
-                "align": "auto",
-                "filterable": true
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Active"
-                },
-                "properties": [
-                  {
-                    "id": "custom.width",
-                    "value": 80
-                  },
-                  {
-                    "id": "mappings",
-                    "value": [
-                      {
-                        "type": "value",
-                        "options": {
-                          "0": {
-                            "text": "Waiting",
-                            "color": "#CC0AAC"
-                          },
-                          "1": {
-                            "text": "Active",
-                            "color": "#5000BF"
-                          }
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "id": "custom.cellOptions",
-                    "value": {
-                      "type": "color-text"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Stake"
-                },
-                "properties": [
-                  {
-                    "id": "decimals",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Own"
-                },
-                "properties": [
-                  {
-                    "id": "decimals",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Commission"
-                },
-                "properties": [
-                  {
-                    "id": "unit",
-                    "value": "percent"
-                  },
-                  {
-                    "id": "decimals",
-                    "value": 1
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Nominators"
-                },
-                "properties": [
-                  {
-                    "id": "decimals",
-                    "value": 0
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Era Points"
-                },
-                "properties": [
-                  {
-                    "id": "decimals",
-                    "value": 0
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "showHeader": true,
-            "sortBy": [
-              {
-                "displayName": "Stake",
-                "desc": true
-              }
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">ERA REWARD POINTS</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
             ],
-            "footer": {
-              "show": false,
-              "reducer": [],
-              "countRows": false,
-              "enablePagination": false
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
             }
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 9,
+            "y": 1,
+            "w": 3,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "sxt_staking_target_validator_count",
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">MAX VALIDATORS</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');if(r){var n=parseFloat(r);if(!isNaN(n))el.textContent=n.toLocaleString('en-US',{maximumFractionDigits:2});}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ]
+        },
+        {
+          "type": "volkovlabs-echarts-panel",
+          "title": "Stake per validator",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 0,
+            "y": 5,
+            "w": 12,
+            "h": 14
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sxt_validator_total_stake",
+              "range": false,
+              "instant": true
+            }
+          ],
+          "options": {
+            "editor": {
+              "format": "full",
+              "height": 600
+            },
+            "getOption": "const frame = context.panel.data.series[0];\nif (!frame || !frame.fields) return { title: { text: 'No data', textStyle: { color: '#6F4D80' }, left: 'center', top: 'middle' } };\n\n// Extract validator addresses (from labels) and stake values\nconst valueField = frame.fields.find(f => f.type === 'number');\nif (!valueField) return {};\nconst values = valueField.values.buffer || valueField.values;\nconst labels = valueField.labels || {};\nconst valueLabels = valueField.config?.displayNameFromDS || '';\n\n// Each series in the frame has its own validator label. Since all validators\n// return a single value each, we have multiple series in frame.\nconst series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  // Label: try to find validator address in labels\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '…' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => b.value - a.value);\n\n// Build color scale magenta->purple based on rank\nconst colorFor = (i, total) => {\n  const t = i / Math.max(1, total - 1);\n  // interpolate from magenta (#CC0AAC) to purple (#5000BF)\n  const r1=0xCC, g1=0x0A, b1=0xAC;\n  const r2=0x50, g2=0x00, b2=0xBF;\n  const r=Math.round(r1 + (r2-r1)*t);\n  const g=Math.round(g1 + (g2-g1)*t);\n  const b=Math.round(b1 + (b2-b1)*t);\n  return 'rgb(' + r + ',' + g + ',' + b + ')';\n};\n\nconst totalStake = data.reduce((a, b) => a + b.value, 0);\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter, sans-serif', fontSize: 11 },\n    formatter: (info) => {\n      const pct = ((info.value / totalStake) * 100).toFixed(2);\n      return '<div style=\"padding:2px 0;\">'\n        + '<div style=\"color:#CC0AAC; font-weight:600; margin-bottom:4px;\">' + (info.data.fullName || info.name) + '</div>'\n        + '<div>Stake: <b>' + Number(info.value).toLocaleString('en-US') + '</b></div>'\n        + '<div>Share: <b>' + pct + '%</b></div>'\n        + '</div>';\n    },\n  },\n  series: [{\n    type: 'treemap',\n    data: data.map((d, i) => ({\n      ...d,\n      itemStyle: { color: colorFor(i, data.length) },\n    })),\n    roam: false,\n    nodeClick: false,\n    breadcrumb: { show: false },\n    label: {\n      show: true,\n      formatter: '{b}',\n      color: '#E6E6E6',\n      fontFamily: 'JetBrains Mono, monospace',\n      fontSize: 10,\n      fontWeight: 600,\n      textShadowColor: 'rgba(0,0,0,0.8)',\n      textShadowBlur: 4,\n    },\n    upperLabel: { show: false },\n    itemStyle: {\n      borderColor: 'rgba(16, 2, 23, 0.9)',\n      borderWidth: 2,\n      gapWidth: 2,\n    },\n    emphasis: {\n      itemStyle: {\n        shadowBlur: 20,\n        shadowColor: 'rgba(204, 10, 172, 0.6)',\n      },\n      label: { fontSize: 13 },\n    },\n    levels: [{\n      itemStyle: {\n        borderColor: 'rgba(16, 2, 23, 0.9)',\n        borderWidth: 2,\n        gapWidth: 2,\n      },\n    }],\n  }],\n};\n",
+            "map": "",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": {},
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "type": "volkovlabs-echarts-panel",
+          "title": "Era points per validator",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 12,
+            "y": 5,
+            "w": 12,
+            "h": 14
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sxt_validator_era_points",
+              "range": false,
+              "instant": true
+            }
+          ],
+          "options": {
+            "editor": {
+              "format": "full",
+              "height": 600
+            },
+            "getOption": "const series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '…' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => a.value - b.value);  // ascending for horizontal bar\n\nreturn {\n  backgroundColor: 'transparent',\n  grid: { left: 110, right: 30, top: 10, bottom: 30, containLabel: false },\n  tooltip: {\n    trigger: 'item',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (p) => '<b style=\"color:#CC0AAC\">' + (p.data.fullName || p.name) + '</b><br/>Era points: <b>' + Number(p.value).toLocaleString('en-US') + '</b>',\n  },\n  xAxis: {\n    type: 'value',\n    axisLine:  { show: false },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n    splitLine: { lineStyle: { color: 'rgba(58, 24, 87, 0.4)', type: 'dashed' } },\n  },\n  yAxis: {\n    type: 'category',\n    data: data.map(d => d.name),\n    axisLine:  { lineStyle: { color: '#3A1857' } },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n  },\n  series: [{\n    type: 'bar',\n    data: data.map(d => ({ value: d.value, fullName: d.fullName })),\n    itemStyle: {\n      color: {\n        type: 'linear', x: 0, y: 0, x2: 1, y2: 0,\n        colorStops: [\n          { offset: 0, color: '#5000BF' },\n          { offset: 1, color: '#CC0AAC' },\n        ],\n      },\n      borderRadius: [0, 3, 3, 0],\n    },\n    emphasis: {\n      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(204, 10, 172, 0.6)' },\n    },\n    barWidth: '70%',\n  }],\n};\n",
+            "map": "",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": {},
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
+        },
+        {
+          "type": "volkovlabs-echarts-panel",
+          "title": "All validators",
+          "datasource": "Prometheus",
+          "description": "All registered validators with key metrics. Click column headers to sort.",
+          "gridPos": {
+            "x": 0,
+            "y": 19,
+            "w": 24,
+            "h": 14
           },
           "targets": [
             {
               "expr": "sxt_validator_total_stake",
+              "refId": "Stake",
               "instant": true,
-              "format": "table",
-              "refId": "A"
+              "range": false,
+              "legendFormat": ""
             },
             {
               "expr": "sxt_validator_own_stake",
+              "refId": "OwnStake",
               "instant": true,
-              "format": "table",
-              "refId": "B"
+              "range": false,
+              "legendFormat": ""
             },
             {
               "expr": "sxt_validator_commission",
+              "refId": "Commission",
               "instant": true,
-              "format": "table",
-              "refId": "C"
+              "range": false,
+              "legendFormat": ""
             },
             {
               "expr": "sxt_validator_nominator_count",
+              "refId": "Nominators",
               "instant": true,
-              "format": "table",
-              "refId": "D"
+              "range": false,
+              "legendFormat": ""
             },
             {
               "expr": "sxt_validator_era_points",
+              "refId": "Points",
               "instant": true,
-              "format": "table",
-              "refId": "E"
+              "range": false,
+              "legendFormat": ""
             },
             {
               "expr": "sxt_validator_active",
+              "refId": "Active",
               "instant": true,
-              "format": "table",
-              "refId": "F"
+              "range": false,
+              "legendFormat": ""
             }
           ],
-          "transformations": [
-            {
-              "id": "joinByField",
-              "options": {
-                "byField": "address"
-              }
+          "options": {
+            "editor": {
+              "format": "auto"
             },
-            {
-              "id": "organize",
-              "options": {
-                "excludeByName": {
-                  "Time": true,
-                  "Time 1": true,
-                  "Time 2": true,
-                  "Time 3": true,
-                  "Time 4": true,
-                  "Time 5": true,
-                  "Time 6": true,
-                  "__name__": true,
-                  "__name__ 1": true,
-                  "__name__ 2": true,
-                  "__name__ 3": true,
-                  "__name__ 4": true,
-                  "__name__ 5": true,
-                  "instance": true,
-                  "instance 1": true,
-                  "instance 2": true,
-                  "instance 3": true,
-                  "instance 4": true,
-                  "instance 5": true,
-                  "job": true,
-                  "job 1": true,
-                  "job 2": true,
-                  "job 3": true,
-                  "job 4": true,
-                  "job 5": true,
-                  "chain": true,
-                  "chain 1": true,
-                  "chain 2": true,
-                  "chain 3": true,
-                  "chain 4": true,
-                  "chain 5": true,
-                  "validator": true,
-                  "validator 1": true,
-                  "validator 2": true,
-                  "validator 3": true,
-                  "validator 4": true,
-                  "validator 5": true,
-                  "full_address": true
-                },
-                "renameByName": {
-                  "address": "Validator",
-                  "Value #A": "Stake",
-                  "Value #B": "Own",
-                  "Value #C": "Commission",
-                  "Value #D": "Nominators",
-                  "Value #E": "Era Points",
-                  "Value #F": "Active"
-                }
-              }
-            }
-          ],
-          "transparent": false
+            "getOption": "\nconst s = context.panel.data.series;\nconst W = context.panel.chart.getWidth();\n\nif (!s || !s.length) {\n  return {backgroundColor:'transparent', graphic:{elements:[\n    {type:'text', left:'center', top:'center', style:{text:'No validator data', fill:'#6F4D80', fontSize:14}}\n  ]}};\n}\n\n// Merge 6 Prometheus series by validator address label\n// Each series has refId: Stake/OwnStake/Commission/Nominators/Points/Active\nconst byValidator = new Map();\nconst refToKey = {\n  'Stake': 'stake', 'OwnStake': 'ownStake', 'Commission': 'commission',\n  'Nominators': 'nominators', 'Points': 'points', 'Active': 'active',\n};\n\ns.forEach(serie => {\n  const key = refToKey[serie.refId];\n  if (!key) return;\n  const numField = serie.fields.find(f => f.type === 'number');\n  if (!numField) return;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0];\n  if (!addr) return;\n  if (!byValidator.has(addr)) byValidator.set(addr, {addr});\n  byValidator.get(addr)[key] = Number(v);\n});\n\nconst rows = Array.from(byValidator.values()).map(r => ({\n  addr: r.addr,\n  stake: r.stake ?? 0,\n  ownStake: r.ownStake ?? 0,\n  commission: r.commission ?? 0,\n  nominators: r.nominators ?? 0,\n  points: r.points ?? 0,\n  active: r.active ?? 0,\n}));\n\nif (!rows.length) {\n  return {backgroundColor:'transparent', graphic:{elements:[\n    {type:'text', left:'center', top:'center', style:{text:'No validator data', fill:'#6F4D80', fontSize:14}}\n  ]}};\n}\n\n// Stats for header\nconst activeN = rows.filter(r => r.active === 1).length;\nconst waitingN = rows.filter(r => r.active === 0).length;\nconst totalStake = rows.reduce((a,r) => a + r.stake, 0);\nconst totalNominators = rows.reduce((a,r) => a + r.nominators, 0);\nconst avgCommission = rows.reduce((a,r) => a + r.commission, 0) / rows.length;\n\nconst fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});\nconst fmtPct = n => (n * 100).toFixed(1) + '%';\n\nconst shortAddr = a => a.length > 14 ? a.slice(0,8) + '…' + a.slice(-4) : a;\n\nconst dom = context.panel.chart.getDom();\ndom._sxtRows = rows;\ndom._sxtSortCol = dom._sxtSortCol || 'stake';\ndom._sxtSortDir = dom._sxtSortDir || 'desc';\n\nfunction buildTable(sortCol, sortDir) {\n  const sorted = [...dom._sxtRows];\n  sorted.sort((a, b) => {\n    let cmp;\n    if (sortCol === 'addr') cmp = a.addr.localeCompare(b.addr);\n    else cmp = (a[sortCol] || 0) - (b[sortCol] || 0);\n    return sortDir === 'asc' ? cmp : -cmp;\n  });\n\n  const maxStake = Math.max(...sorted.map(r => r.stake));\n  const maxPoints = Math.max(...sorted.map(r => r.points));\n\n  const arrow = col => sortCol === col\n    ? (sortDir === 'asc' ? ' ▲' : ' ▼')\n    : ' ▴▾';\n  const headColor = col => sortCol === col ? '#CC0AAC' : '#A090B5';\n\n  // Header with summary stats\n  let h = '<div style=\"display:flex;gap:18px;padding:10px 16px;border-bottom:1px solid #3A1857;font-size:11px;color:#A090B5;font-family:Inter,sans-serif;\">';\n  h += '<span><span style=\"color:#22c55e\">●</span> Active: <b style=\"color:#E6E6E6\">'+activeN+'</b></span>';\n  if (waitingN > 0) h += '<span><span style=\"color:#6F4D80\">●</span> Waiting: <b style=\"color:#E6E6E6\">'+waitingN+'</b></span>';\n  h += '<span style=\"margin-left:auto\">Total stake: <b style=\"color:#CC0AAC\">'+fmt(totalStake)+'</b> SXT</span>';\n  h += '<span>Nominators: <b style=\"color:#E6E6E6\">'+fmt(totalNominators)+'</b></span>';\n  h += '<span>Avg commission: <b style=\"color:#E6E6E6\">'+fmtPct(avgCommission)+'</b></span>';\n  h += '<span style=\"color:#6F4D80\">Total: '+sorted.length+'</span>';\n  h += '</div>';\n\n  // Table\n  h += '<table style=\"width:100%;border-collapse:collapse;font-size:12px;color:#E6E6E6;\">';\n  h += '<thead style=\"position:sticky;top:0;z-index:1;\">';\n  h += '<tr style=\"background:#100217;\">';\n  h += '<th data-sort=\"addr\"       style=\"cursor:pointer;user-select:none;text-align:left;padding:8px 14px;color:'+headColor('addr')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">VALIDATOR'+arrow('addr')+'</th>';\n  h += '<th data-sort=\"active\"     style=\"cursor:pointer;user-select:none;text-align:center;padding:8px 14px;color:'+headColor('active')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">STATUS'+arrow('active')+'</th>';\n  h += '<th data-sort=\"stake\"      style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('stake')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">TOTAL STAKE'+arrow('stake')+'</th>';\n  h += '<th data-sort=\"ownStake\"   style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('ownStake')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">OWN STAKE'+arrow('ownStake')+'</th>';\n  h += '<th data-sort=\"commission\" style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('commission')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">COMMISSION'+arrow('commission')+'</th>';\n  h += '<th data-sort=\"nominators\" style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('nominators')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">NOMINATORS'+arrow('nominators')+'</th>';\n  h += '<th data-sort=\"points\"     style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('points')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">ERA POINTS'+arrow('points')+'</th>';\n  h += '</tr></thead><tbody>';\n\n  for (let i = 0; i < sorted.length; i++) {\n    const r = sorted[i];\n    const bg = i % 2 === 0 ? 'transparent' : 'rgba(204,10,172,0.025)';\n    const stakePct = Math.min(100, (r.stake / maxStake) * 100);\n    const pointsPct = Math.min(100, (r.points / maxPoints) * 100);\n    const statusLabel = r.active === 1 ? 'Active' : 'Waiting';\n    const statusColor = r.active === 1 ? '#22c55e' : '#6F4D80';\n    const statusIcon = r.active === 1 ? '●' : '○';\n\n    h += '<tr style=\"background:'+bg+'\" onmouseover=\"this.style.background=\\'rgba(204,10,172,0.08)\\'\" onmouseout=\"this.style.background=\\''+bg+'\\'\">';\n    h += '<td style=\"padding:7px 14px;font-family:JetBrains Mono,monospace;font-size:11px;color:#E6E6E6;\">'+shortAddr(r.addr)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:center;color:'+statusColor+';font-size:11px;font-weight:500;\">'+statusIcon+' '+statusLabel+'</td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;\"><div style=\"display:flex;align-items:center;justify-content:flex-end;gap:10px;\">';\n    h += '<div style=\"width:70px;height:4px;background:rgba(58,24,87,0.4);border-radius:2px;overflow:hidden;\"><div style=\"width:'+stakePct+'%;height:100%;background:linear-gradient(90deg,#5000BF,#CC0AAC);border-radius:2px;\"></div></div>';\n    h += '<span style=\"color:#E6E6E6;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;min-width:100px;text-align:right;\">'+fmt(r.stake)+'</span></div></td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmt(r.ownStake)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmtPct(r.commission)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmt(r.nominators)+'</td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;\"><div style=\"display:flex;align-items:center;justify-content:flex-end;gap:10px;\">';\n    h += '<div style=\"width:60px;height:4px;background:rgba(58,24,87,0.4);border-radius:2px;overflow:hidden;\"><div style=\"width:'+pointsPct+'%;height:100%;background:#CC0AAC;border-radius:2px;\"></div></div>';\n    h += '<span style=\"color:#E6E6E6;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;min-width:60px;text-align:right;\">'+fmt(r.points)+'</span></div></td>';\n\n    h += '</tr>';\n  }\n  h += '</tbody></table>';\n  return h;\n}\n\ndom._sxtBuildTable = buildTable;\nconst html = buildTable(dom._sxtSortCol, dom._sxtSortDir);\nconst _hash = html.length + '_' + dom._sxtSortCol + dom._sxtSortDir;\nif (dom._lastSxtHash === _hash) return {backgroundColor:'transparent'};\ndom._lastSxtHash = _hash;\n\nsetTimeout(() => {\n  let wrap = dom.querySelector('.sxt-val-wrap');\n  if (!wrap) {\n    wrap = document.createElement('div');\n    wrap.className = 'sxt-val-wrap';\n    wrap.style.cssText = 'position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;z-index:10;scrollbar-width:thin;scrollbar-color:#3A1857 transparent;';\n    dom.appendChild(wrap);\n  }\n  wrap.innerHTML = html;\n\n  dom._sxtAttachSort = function(w) {\n    w.querySelectorAll('[data-sort]').forEach(th => {\n      th.addEventListener('click', function() {\n        const col = this.getAttribute('data-sort');\n        if (dom._sxtSortCol === col) {\n          dom._sxtSortDir = dom._sxtSortDir === 'asc' ? 'desc' : 'asc';\n        } else {\n          dom._sxtSortCol = col;\n          dom._sxtSortDir = col === 'addr' ? 'asc' : 'desc';\n        }\n        w.innerHTML = dom._sxtBuildTable(dom._sxtSortCol, dom._sxtSortDir);\n        dom._lastSxtHash = null;\n        dom._sxtAttachSort(w);\n      });\n    });\n  };\n  dom._sxtAttachSort(wrap);\n}, 0);\n\nreturn {backgroundColor:'transparent'};\n",
+            "map": "none",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": "{}",
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            },
+            "padding": 0
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
         },
         {
+          "type": "volkovlabs-echarts-panel",
           "title": "Stake distribution",
-          "type": "piechart",
           "datasource": "Prometheus",
+          "description": "",
           "gridPos": {
-            "h": 12,
-            "w": 12,
             "x": 0,
-            "y": 33
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "currencyUSD",
-              "decimals": 0,
-              "color": {
-                "mode": "palette-classic"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "legend": {
-              "displayMode": "table",
-              "placement": "right",
-              "values": [
-                "value",
-                "percent"
-              ]
-            },
-            "tooltip": {
-              "mode": "single"
-            },
-            "pieType": "donut"
+            "y": 33,
+            "w": 12,
+            "h": 12
           },
           "targets": [
             {
+              "refId": "A",
               "expr": "sxt_validator_total_stake_usd",
-              "legendFormat": "{{address}}"
+              "range": false,
+              "instant": true
             }
           ],
-          "transparent": false,
-          "description": "Stake distribution across validators (USD)"
+          "options": {
+            "editor": {
+              "format": "full",
+              "height": 600
+            },
+            "getOption": "const series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '…' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => b.value - a.value);\n\n// Top 10 + \"Others\" aggregation\nconst TOP = 10;\nlet pieData = data;\nif (data.length > TOP) {\n  const top = data.slice(0, TOP);\n  const others = data.slice(TOP).reduce((sum, d) => sum + d.value, 0);\n  pieData = [...top, { name: 'Others (' + (data.length - TOP) + ')', fullName: 'Others', value: others }];\n}\n\nconst colorFor = (i, total) => {\n  const t = i / Math.max(1, total - 1);\n  const r1=0xCC, g1=0x0A, b1=0xAC;\n  const r2=0x50, g2=0x00, b2=0xBF;\n  const r=Math.round(r1 + (r2-r1)*t);\n  const g=Math.round(g1 + (g2-g1)*t);\n  const b=Math.round(b1 + (b2-b1)*t);\n  return 'rgb(' + r + ',' + g + ',' + b + ')';\n};\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    trigger: 'item',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (p) => '<b style=\"color:#CC0AAC\">' + (p.data.fullName || p.name) + '</b><br/>Stake: <b>$' + Number(p.value).toLocaleString('en-US') + '</b><br/>Share: <b>' + p.percent + '%</b>',\n  },\n  series: [{\n    type: 'pie',\n    radius: ['40%', '70%'],\n    center: ['50%', '50%'],\n    avoidLabelOverlap: true,\n    itemStyle: {\n      borderColor: 'rgba(16, 2, 23, 0.9)',\n      borderWidth: 2,\n    },\n    label: {\n      show: true,\n      color: '#E6E6E6',\n      fontFamily: 'JetBrains Mono, monospace',\n      fontSize: 9,\n      formatter: '{b}',\n    },\n    labelLine: { lineStyle: { color: '#6F4D80' } },\n    emphasis: {\n      itemStyle: { shadowBlur: 15, shadowColor: 'rgba(204, 10, 172, 0.6)' },\n      label: { fontSize: 11, fontWeight: 'bold' },\n    },\n    data: pieData.map((d, i) => ({\n      ...d,\n      itemStyle: { color: colorFor(i, pieData.length) },\n    })),\n  }],\n};\n",
+            "map": "",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": {},
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
         },
         {
+          "type": "volkovlabs-echarts-panel",
           "title": "Era rewards history",
-          "type": "barchart",
           "datasource": "ClickHouse",
+          "description": "",
           "gridPos": {
-            "h": 8,
-            "w": 12,
             "x": 12,
-            "y": 33
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "network_reward"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Network reward (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "era"
-                },
-                "properties": [
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "hidden"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "never",
-            "stacking": "none",
-            "groupWidth": 0.5,
-            "barWidth": 1.0,
-            "tooltip": {
-              "mode": "single"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "xTickLabelRotation": -45
+            "y": 33,
+            "w": 12,
+            "h": 12
           },
           "targets": [
             {
+              "refId": "A",
               "rawSql": "SELECT toString(era) as era, network_reward FROM sxt.v_era_rewards ORDER BY era",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
+              "format": 1
             }
           ],
-          "transparent": false,
-          "description": "Total reward distributed to all validators per era (SXT). 1 bar = 1 era = 1 day."
+          "options": {
+            "editor": {
+              "format": "full",
+              "height": 600
+            },
+            "getOption": "const frame = context.panel.data.series[0];\nif (!frame) return { title: { text: 'No data', left: 'center', top: 'middle', textStyle: { color: '#6F4D80' } } };\n\nconst eraField = frame.fields.find(f => f.name === 'era');\nconst rewardField = frame.fields.find(f => f.name === 'network_reward' || f.type === 'number');\nif (!eraField || !rewardField) return {};\n\nconst eras = eraField.values.buffer || eraField.values;\nconst rewards = rewardField.values.buffer || rewardField.values;\n\nreturn {\n  backgroundColor: 'transparent',\n  grid: { left: 60, right: 20, top: 20, bottom: 40, containLabel: true },\n  tooltip: {\n    trigger: 'axis',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (params) => {\n      const p = params[0];\n      return '<b style=\"color:#CC0AAC\">Era ' + p.name + '</b><br/>Reward: <b>' + Number(p.value).toLocaleString('en-US') + '</b>';\n    },\n    axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(204, 10, 172, 0.1)' } },\n  },\n  xAxis: {\n    type: 'category',\n    data: eras.map(e => String(e)),\n    axisLine:  { lineStyle: { color: '#3A1857' } },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n  },\n  yAxis: {\n    type: 'value',\n    axisLine:  { show: false },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n    splitLine: { lineStyle: { color: 'rgba(58, 24, 87, 0.4)', type: 'dashed' } },\n  },\n  series: [{\n    type: 'bar',\n    data: Array.from(rewards).map(v => Number(v)),\n    itemStyle: {\n      color: {\n        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,\n        colorStops: [\n          { offset: 0, color: '#CC0AAC' },\n          { offset: 1, color: '#5000BF' },\n        ],\n      },\n      borderRadius: [3, 3, 0, 0],\n    },\n    emphasis: {\n      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(204, 10, 172, 0.7)' },\n    },\n    barWidth: '60%',\n  }],\n};\n",
+            "map": "",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": {},
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
         },
         {
+          "type": "volkovlabs-echarts-panel",
           "title": "Delegation changes",
-          "type": "barchart",
           "datasource": "ClickHouse",
+          "description": "",
           "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 41
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "inflows"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#37872D",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Inflows"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "outflows"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#C4162A",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Outflows"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "net_change"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Net change"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "era"
-                },
-                "properties": [
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "hidden"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "never",
-            "stacking": "none",
-            "groupWidth": 0.8,
-            "barWidth": 0.9,
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "xTickLabelRotation": -45
+            "x": 0,
+            "y": 45,
+            "w": 24,
+            "h": 10
           },
           "targets": [
             {
+              "refId": "A",
               "rawSql": "SELECT toString(era) as era, inflows, outflows, net_change FROM sxt.v_delegation_changes ORDER BY era",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
+              "format": 1
             }
           ],
-          "transparent": false,
-          "description": "Delegation stake changes per era. Green = inflows, Red = outflows, Purple = net. 1 bar = 1 era."
+          "options": {
+            "editor": {
+              "format": "full",
+              "height": 600
+            },
+            "getOption": "const frame = context.panel.data.series[0];\nif (!frame) return { title: { text: 'No data', left: 'center', top: 'middle', textStyle: { color: '#6F4D80' } } };\n\nconst eraField    = frame.fields.find(f => f.name === 'era');\nconst inflowsF    = frame.fields.find(f => f.name === 'inflows');\nconst outflowsF   = frame.fields.find(f => f.name === 'outflows');\nconst netChangeF  = frame.fields.find(f => f.name === 'net_change');\nif (!eraField) return {};\n\nconst eras     = eraField.values.buffer || eraField.values;\nconst inflows  = inflowsF  ? (inflowsF.values.buffer  || inflowsF.values)  : [];\nconst outflows = outflowsF ? (outflowsF.values.buffer || outflowsF.values) : [];\nconst netCh    = netChangeF? (netChangeF.values.buffer|| netChangeF.values): [];\n\nreturn {\n  backgroundColor: 'transparent',\n  legend: {\n    data: ['Inflows', 'Outflows', 'Net change'],\n    top: 5,\n    textStyle: { color: '#A090B5', fontFamily: 'Inter', fontSize: 10 },\n    itemWidth: 10, itemHeight: 10,\n  },\n  grid: { left: 60, right: 20, top: 35, bottom: 40, containLabel: true },\n  tooltip: {\n    trigger: 'axis',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(204, 10, 172, 0.1)' } },\n  },\n  xAxis: {\n    type: 'category',\n    data: Array.from(eras).map(e => String(e)),\n    axisLine:  { lineStyle: { color: '#3A1857' } },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n  },\n  yAxis: {\n    type: 'value',\n    axisLine:  { show: false },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n    splitLine: { lineStyle: { color: 'rgba(58, 24, 87, 0.4)', type: 'dashed' } },\n  },\n  series: [\n    {\n      name: 'Inflows',\n      type: 'bar',\n      data: Array.from(inflows).map(v => Number(v)),\n      itemStyle: { color: '#22c55e', borderRadius: [2, 2, 0, 0] },\n      barGap: '10%', barWidth: '28%',\n    },\n    {\n      name: 'Outflows',\n      type: 'bar',\n      data: Array.from(outflows).map(v => -Math.abs(Number(v))),\n      itemStyle: { color: '#ef4444', borderRadius: [2, 2, 0, 0] },\n      barWidth: '28%',\n    },\n    {\n      name: 'Net change',\n      type: 'line',\n      data: Array.from(netCh).map(v => Number(v)),\n      smooth: true,\n      lineStyle: { color: '#CC0AAC', width: 2 },\n      itemStyle: { color: '#CC0AAC' },\n      symbol: 'circle',\n      symbolSize: 5,\n    },\n  ],\n};\n",
+            "map": "",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": {},
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
         }
       ],
       "description": "All validators on-chain: totals, stake distribution, era points, era rewards history, delegation flows, full sortable table."
