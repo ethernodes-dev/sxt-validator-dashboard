@@ -15,7 +15,7 @@
     "to": "now"
   },
   "schemaVersion": 41,
-  "version": 4,
+  "version": 29,
   "style": "dark",
   "panels": [
     {
@@ -30,600 +30,682 @@
       },
       "panels": [
         {
-          "title": "Best block",
-          "type": "stat",
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
           "datasource": "Prometheus",
+          "description": "Latest block produced by the network",
           "gridPos": {
-            "h": 4,
-            "w": 3,
             "x": 0,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "substrate_block_height{status=\"best\",job=\"sxt-node\"}",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Latest block produced by the network"
-        },
-        {
-          "title": "Finalized",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 3,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">BEST BLOCK</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Latest finalized block",
+          "gridPos": {
+            "x": 3,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "substrate_block_height{status=\"finalized\",job=\"sxt-node\"}",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Last block confirmed as irreversible by GRANDPA"
-        },
-        {
-          "title": "Finality lag",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 6,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">FINALIZED</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "green",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 3
-                  },
-                  {
-                    "color": "red",
-                    "value": 10
-                  }
-                ]
-              },
-              "color": {
-                "mode": "thresholds"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Blocks between best and finalized. OK ≤5, warn ≤20, danger >20",
+          "gridPos": {
+            "x": 6,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_finality_lag_blocks",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Blocks between best and finalized — above 3 needs attention"
-        },
-        {
-          "title": "Sync",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 9,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">FINALITY LAG</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "mappings": [
-                {
-                  "type": "value",
-                  "options": {
-                    "0": {
-                      "text": "SYNCED",
-                      "color": "#5000BF"
-                    },
-                    "1": {
-                      "text": "SYNCING",
-                      "color": "#CC0AAC"
-                    }
-                  }
-                }
-              ],
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#5000BF",
-                    "value": null
-                  }
-                ]
-              },
-              "color": {
-                "mode": "thresholds"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "From system_health.isSyncing RPC call. 'Synced' = node has caught up to the network's best block. 'Syncing' = node is still importing historical blocks.",
+          "gridPos": {
+            "x": 9,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_is_syncing",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Whether this node is fully synced with the network"
-        },
-        {
-          "title": "Runtime spec",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 12,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <div style=\"display:flex; align-items:center; gap:8px; justify-content:center;\">\n    <span class=\"sxt-status-dot\" data-status=\"{{#if (eq value \"0\")}}ok{{else}}warn{{/if}}\"></span>\n    <p class=\"sxt-label\" style=\"margin:0;\">NODE SYNC</p>\n  </div>\n  <p class=\"sxt-num sxt-num--xl\" style=\"margin:0;\">{{#if (eq value \"0\")}}Synced{{else}}Syncing{{/if}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--sxt-text-dim); }\n.sxt-status-dot[data-status=\"ok\"]   { background: var(--sxt-success); box-shadow: 0 0 6px var(--sxt-success); }\n.sxt-status-dot[data-status=\"warn\"] { background: var(--sxt-warning); box-shadow: 0 0 6px var(--sxt-warning); }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "On-chain runtime spec version",
+          "gridPos": {
+            "x": 12,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_runtime_spec_version",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "On-chain runtime version — changes on upgrades"
-        },
-        {
-          "title": "Pending ext.",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 15,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">RUNTIME SPEC</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#5000BF",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 50
-                  },
-                  {
-                    "color": "#E6E6E6",
-                    "value": 200
-                  }
-                ]
-              },
-              "color": {
-                "mode": "thresholds"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Transactions in the pool waiting to be included",
+          "gridPos": {
+            "x": 15,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_pending_extrinsics",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Transactions waiting in the mempool to be included"
-        },
-        {
-          "title": "Era",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 2,
-            "x": 18,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">PENDING EXT.</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Current staking era",
+          "gridPos": {
+            "x": 18,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_current_era",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Current staking era — validators and rewards rotate each era"
-        },
-        {
-          "title": "Epoch",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 2,
-            "x": 20,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">ERA</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Current BABE epoch",
+          "gridPos": {
+            "x": 21,
+            "y": 1,
+            "w": 3,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_network_babe_epoch_index",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Current BABE epoch — block producer schedule resets each epoch"
-        },
-        {
-          "title": "GRANDPA round",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 2,
-            "x": 22,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">EPOCH</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Current GRANDPA voting round",
+          "gridPos": {
+            "x": 0,
+            "y": 5,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_grandpa_round",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "value",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Current finality voting round number"
-        },
-        {
-          "title": "Era progress",
-          "type": "bargauge",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 8,
-            "x": 0,
-            "y": 5
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">GRANDPA ROUND</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "percentunit",
-              "min": 0,
-              "max": 1,
-              "decimals": 1,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#100217",
-                    "value": null
-                  },
-                  {
-                    "color": "#5000BF",
-                    "value": 0.25
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 0.75
-                  }
-                ]
+              "unit": "locale",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "showUnfilled": true,
-            "minVizWidth": 0,
-            "minVizHeight": 10,
-            "valueMode": "text"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Current era completion 0-100%",
+          "gridPos": {
+            "x": 4,
+            "y": 5,
+            "w": 10,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "sxt_staking_era_progress",
-              "legendFormat": ""
+              "expr": "sxt_staking_era_progress * 100",
+              "refId": "A",
+              "legendFormat": "value",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "How far into the current staking era we are"
-        },
-        {
-          "title": "Epoch progress",
-          "type": "bargauge",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 8,
-            "x": 8,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percentunit",
-              "min": 0,
-              "max": 1,
-              "decimals": 1,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#100217",
-                    "value": null
-                  },
-                  {
-                    "color": "#5000BF",
-                    "value": 0.25
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 0.75
-                  }
-                ]
-              }
-            }
-          },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+            "content": "<div class=\"sxt-card\" style=\"display:flex; flex-direction:column; justify-content:center; gap:12px; height:100%;\">\n  <div class=\"sxt-spread\">\n    <p class=\"sxt-label\" style=\"margin:0;\">ERA PROGRESS</p>\n    <p class=\"sxt-num sxt-num--md\" style=\"margin:0;\">{{value}}%</p>\n  </div>\n  <div class=\"sxt-progress-track\">\n    <div class=\"sxt-progress-fill\" style=\"width: {{value}}%;\"></div>\n  </div>\n</div>\n<style>\n.sxt-progress-track { width:100%; height:10px; background: rgba(111,77,128,0.2); border-radius:5px; overflow:hidden; }\n.sxt-progress-fill { height:100%; background: linear-gradient(90deg, var(--sxt-electric-purple) 0%, var(--sxt-neon-magenta) 60%, #FF00D5 100%); border-radius:5px; transition: width 0.5s ease; box-shadow: 0 0 12px rgba(204,10,172,0.6); }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
             },
-            "displayMode": "gradient",
-            "orientation": "horizontal",
-            "showUnfilled": true,
-            "minVizWidth": 0,
-            "minVizHeight": 10,
-            "valueMode": "text"
-          },
-          "targets": [
-            {
-              "expr": "sxt_network_babe_epoch_progress",
-              "legendFormat": ""
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
             }
-          ],
-          "transparent": false,
-          "description": "How far into the current BABE epoch we are"
-        },
-        {
-          "title": "Block height",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 8,
-            "x": 16,
-            "y": 5
           },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "mode": "palette-classic"
-              },
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 8,
-                "showPoints": "never"
-              }
+              "decimals": 1
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Best"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Finalized"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
             }
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "Current BABE epoch completion 0-100%",
+          "gridPos": {
+            "x": 14,
+            "y": 5,
+            "w": 10,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "substrate_block_height{status=\"best\",job=\"sxt-node\"}",
-              "legendFormat": "Best"
-            },
-            {
-              "expr": "substrate_block_height{status=\"finalized\",job=\"sxt-node\"}",
-              "legendFormat": "Finalized"
+              "expr": "sxt_network_babe_epoch_progress * 100",
+              "refId": "A",
+              "legendFormat": "value",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Best and finalized block height over time"
+          "options": {
+            "content": "<div class=\"sxt-card\" style=\"display:flex; flex-direction:column; justify-content:center; gap:12px; height:100%;\">\n  <div class=\"sxt-spread\">\n    <p class=\"sxt-label\" style=\"margin:0;\">EPOCH PROGRESS</p>\n    <p class=\"sxt-num sxt-num--md\" style=\"margin:0;\">{{value}}%</p>\n  </div>\n  <div class=\"sxt-progress-track\">\n    <div class=\"sxt-progress-fill\" style=\"width: {{value}}%;\"></div>\n  </div>\n</div>\n<style>\n.sxt-progress-track { width:100%; height:10px; background: rgba(111,77,128,0.2); border-radius:5px; overflow:hidden; }\n.sxt-progress-fill { height:100%; background: linear-gradient(90deg, var(--sxt-electric-purple) 0%, var(--sxt-neon-magenta) 60%, #FF00D5 100%); border-radius:5px; transition: width 0.5s ease; box-shadow: 0 0 12px rgba(204,10,172,0.6); }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "javascript",
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true,
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            }
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ]
         }
       ],
       "description": "Chain-wide state: blocks, finality, era/epoch, runtime."
