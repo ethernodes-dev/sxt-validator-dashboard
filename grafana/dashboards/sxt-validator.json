@@ -14,21 +14,20 @@
     "from": "now-3h",
     "to": "now"
   },
-  "liveNow": true,
-  "schemaVersion": 39,
-  "version": 1,
+  "schemaVersion": 41,
+  "version": 4,
   "style": "dark",
   "panels": [
     {
-      "title": "\u2b21 Chain status",
+      "title": "⬢ Protocol overview",
       "type": "row",
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
         "y": 0
       },
-      "collapsed": true,
       "panels": [
         {
           "title": "Best block",
@@ -161,7 +160,7 @@
             }
           ],
           "transparent": false,
-          "description": "Blocks between best and finalized \u2014 above 3 needs attention"
+          "description": "Blocks between best and finalized — above 3 needs attention"
         },
         {
           "title": "Sync",
@@ -260,7 +259,7 @@
             }
           ],
           "transparent": false,
-          "description": "On-chain runtime version \u2014 changes on upgrades"
+          "description": "On-chain runtime version — changes on upgrades"
         },
         {
           "title": "Pending ext.",
@@ -354,7 +353,7 @@
             }
           ],
           "transparent": false,
-          "description": "Current staking era \u2014 validators and rewards rotate each era"
+          "description": "Current staking era — validators and rewards rotate each era"
         },
         {
           "title": "Epoch",
@@ -393,7 +392,7 @@
             }
           ],
           "transparent": false,
-          "description": "Current BABE epoch \u2014 block producer schedule resets each epoch"
+          "description": "Current BABE epoch — block producer schedule resets each epoch"
         },
         {
           "title": "GRANDPA round",
@@ -627,18 +626,18 @@
           "description": "Best and finalized block height over time"
         }
       ],
-      "transparent": false
+      "description": "Chain-wide state: blocks, finality, era/epoch, runtime."
     },
     {
-      "title": "\u2b21 Network economics",
+      "title": "⬢ Network economics",
       "type": "row",
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 1
       },
-      "collapsed": true,
       "panels": [
         {
           "title": "SXT / USD",
@@ -955,1125 +954,20 @@
             }
           ],
           "transparent": false
-        },
-        {
-          "title": "Estimated APR per validator",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percent",
-              "decimals": 1,
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 0,
-                "showPoints": "never"
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "\u2605 ${validator}"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.lineWidth",
-                    "value": 3
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "expr": "sxt_validator_estimated_apr",
-              "legendFormat": "{{address}}"
-            }
-          ],
-          "transparent": false
-        },
-        {
-          "title": "Stake distribution",
-          "type": "piechart",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 12,
-            "w": 12,
-            "x": 0,
-            "y": 13
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "currencyUSD",
-              "decimals": 0,
-              "color": {
-                "mode": "palette-classic"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "legend": {
-              "displayMode": "table",
-              "placement": "right",
-              "values": [
-                "value",
-                "percent"
-              ]
-            },
-            "tooltip": {
-              "mode": "single"
-            },
-            "pieType": "donut"
-          },
-          "targets": [
-            {
-              "expr": "sxt_validator_total_stake_usd",
-              "legendFormat": "{{address}}"
-            }
-          ],
-          "transparent": false,
-          "description": "Stake distribution across validators (USD)"
-        },
-        {
-          "title": "Stake per validator over time",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 12,
-            "w": 12,
-            "x": 12,
-            "y": 13
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 0,
-                "showPoints": "never",
-                "stacking": {
-                  "mode": "none"
-                }
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "\u2605 ${validator}"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.lineWidth",
-                    "value": 3
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            }
-          },
-          "targets": [
-            {
-              "expr": "sxt_validator_total_stake",
-              "legendFormat": "{{address}}"
-            }
-          ],
-          "transparent": false,
-          "description": "Total stake (SXT) per validator over time. Click legend to filter."
-        },
-        {
-          "title": "Era rewards history",
-          "type": "barchart",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 25
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "network_reward"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Network reward (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "era"
-                },
-                "properties": [
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "hidden"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "never",
-            "stacking": "none",
-            "groupWidth": 0.5,
-            "barWidth": 1.0,
-            "tooltip": {
-              "mode": "single"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "xTickLabelRotation": -45
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT toString(era) as era, network_reward FROM sxt.v_era_rewards ORDER BY era",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Total reward distributed to all validators per era (SXT). 1 bar = 1 era = 1 day."
-        },
-        {
-          "title": "Delegation changes",
-          "type": "barchart",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 12,
-            "y": 25
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "inflows"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#37872D",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Inflows"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "outflows"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#C4162A",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Outflows"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "net_change"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Net change"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "era"
-                },
-                "properties": [
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "hidden"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "never",
-            "stacking": "none",
-            "groupWidth": 0.8,
-            "barWidth": 0.9,
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "xTickLabelRotation": -45
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT toString(era) as era, inflows, outflows, net_change FROM sxt.v_delegation_changes ORDER BY era",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Delegation stake changes per era. Green = inflows, Red = outflows, Purple = net. 1 bar = 1 era."
         }
       ],
-      "transparent": false
+      "description": "Token price, market cap, volume and network-level USD metrics."
     },
     {
-      "title": "\u2b21 Operator earnings",
+      "title": "⬢ Validators — global stats",
       "type": "row",
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 2
       },
-      "collapsed": true,
-      "panels": [
-        {
-          "title": "\u2605 Total reward generated",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 0,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 2,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "expr": "sxt_validator_estimated_era_reward{address=~\".*${validator}.*\"}",
-              "legendFormat": ""
-            }
-          ],
-          "transparent": false,
-          "description": "Total reward generated by your validator in last era (SXT). Split between you and your delegators."
-        },
-        {
-          "title": "\u2605 APR",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 6,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percent",
-              "decimals": 2,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "expr": "sxt_validator_estimated_apr{address=~\".*${validator}.*\"}",
-              "legendFormat": ""
-            }
-          ],
-          "transparent": false,
-          "description": "Estimated annual return for selected validator"
-        },
-        {
-          "title": "\u2605 84-day commission",
-          "type": "stat",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 12,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT sum(commission_sxt) as v FROM sxt.v_validator_earnings WHERE validator_name = '${validator}'",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Commission earned from delegators over last 84 days (SXT)"
-        },
-        {
-          "title": "\u2605 84-day total earned",
-          "type": "stat",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 18,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT sum(total_earned_sxt) as v FROM sxt.v_validator_earnings WHERE validator_name = '${validator}'",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Total operator earnings (commission + own yield) over last 84 days (SXT)"
-        },
-        {
-          "title": "\u2605 Monthly commission",
-          "type": "stat",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 0,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT comm_sxt as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Commission earned from delegators in current month (SXT)"
-        },
-        {
-          "title": "\u2605 Monthly own yield",
-          "type": "stat",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 6,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT yield_sxt as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Yield from own staked SXT in current month (SXT)"
-        },
-        {
-          "title": "\u2605 Monthly total",
-          "type": "stat",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 12,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT total_sxt as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Total operator earnings in current month (SXT)"
-        },
-        {
-          "title": "\u2605 Monthly total (USD)",
-          "type": "stat",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 4,
-            "w": 6,
-            "x": 18,
-            "y": 5
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "currencyUSD",
-              "decimals": 2,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT total_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Total operator earnings in current month (USD at current price)"
-        },
-        {
-          "title": "Earnings per era",
-          "type": "barchart",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 10,
-            "w": 24,
-            "x": 0,
-            "y": 9
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 2
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "commission_sxt"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "left"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Commission (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "own_yield_sxt"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#6F4D80",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "left"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Own yield (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "commission_usd"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "right"
-                  },
-                  {
-                    "id": "unit",
-                    "value": "currencyUSD"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Commission (USD)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "own_yield_usd"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#9F6FBF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "right"
-                  },
-                  {
-                    "id": "unit",
-                    "value": "currencyUSD"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Own yield (USD)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "era"
-                },
-                "properties": [
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "hidden"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "never",
-            "stacking": "none",
-            "groupWidth": 0.8,
-            "barWidth": 0.9,
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "xTickLabelRotation": -45
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT toString(era) as era, commission_sxt, own_yield_sxt, commission_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as commission_usd, own_yield_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as own_yield_usd FROM sxt.v_validator_earnings WHERE validator_name = '${validator}' ORDER BY era",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Per-era earnings. Left axis: SXT. Right axis: USD (at current price). 1 bar group = 1 era = 1 day.",
-          "transformations": [
-            {
-              "id": "filterFieldsByName",
-              "options": {
-                "include": {
-                  "pattern": "^(era|month)$|${earnings_view:raw}"
-                }
-              }
-            }
-          ]
-        },
-        {
-          "title": "Monthly earnings",
-          "type": "barchart",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 10,
-            "w": 24,
-            "x": 0,
-            "y": 19
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "comm_sxt"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "left"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Commission (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "yield_sxt"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#6F4D80",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "left"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Own yield (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "comm_usd"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "right"
-                  },
-                  {
-                    "id": "unit",
-                    "value": "currencyUSD"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Commission (USD)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "yield_usd"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#9F6FBF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "right"
-                  },
-                  {
-                    "id": "unit",
-                    "value": "currencyUSD"
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Own yield (USD)"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "always",
-            "stacking": "none",
-            "groupWidth": 0.7,
-            "barWidth": 0.8,
-            "tooltip": {
-              "mode": "multi",
-              "sort": "desc"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            }
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT month, comm_sxt, yield_sxt, comm_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as comm_usd, yield_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as yield_usd FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Monthly totals. Left axis: SXT. Right axis: USD (at current price).",
-          "transformations": [
-            {
-              "id": "filterFieldsByName",
-              "options": {
-                "include": {
-                  "pattern": "^(era|month)$|${earnings_view:raw}"
-                }
-              }
-            }
-          ]
-        },
-        {
-          "title": "\u2605 Total stake over time",
-          "type": "barchart",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 8,
-            "w": 24,
-            "x": 0,
-            "y": 29
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 0
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "total_stake"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  },
-                  {
-                    "id": "displayName",
-                    "value": "Total stake (SXT)"
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "era"
-                },
-                "properties": [
-                  {
-                    "id": "custom.axisPlacement",
-                    "value": "hidden"
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "orientation": "vertical",
-            "showValue": "never",
-            "stacking": "none",
-            "groupWidth": 0.8,
-            "barWidth": 0.9,
-            "tooltip": {
-              "mode": "single"
-            },
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "xTickLabelRotation": -45
-          },
-          "targets": [
-            {
-              "rawSql": "SELECT toString(era) as era, argMax(total_stake, timestamp) as total_stake FROM sxt.delegation_snapshots WHERE validator_name LIKE '%${validator}%' OR validator_address LIKE '%${validator}%' GROUP BY era ORDER BY era",
-              "format": 2,
-              "editorType": "sql",
-              "queryType": "table",
-              "refId": "A"
-            }
-          ],
-          "transparent": false,
-          "description": "Validator total stake (own + delegated) per era."
-        }
-      ],
-      "transparent": false
-    },
-    {
-      "title": "\u2b21 Network staking",
-      "type": "row",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 1
-      },
-      "collapsed": true,
       "panels": [
         {
           "title": "Active validators",
@@ -2083,7 +977,7 @@
             "h": 4,
             "w": 3,
             "x": 0,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2138,7 +1032,7 @@
             "h": 4,
             "w": 2,
             "x": 3,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2177,7 +1071,7 @@
             "h": 4,
             "w": 3,
             "x": 5,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2216,7 +1110,7 @@
             "h": 4,
             "w": 4,
             "x": 8,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2255,7 +1149,7 @@
             "h": 4,
             "w": 4,
             "x": 12,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2294,7 +1188,7 @@
             "h": 4,
             "w": 3,
             "x": 16,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2333,7 +1227,7 @@
             "h": 4,
             "w": 5,
             "x": 19,
-            "y": 2
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2372,7 +1266,7 @@
             "h": 14,
             "w": 12,
             "x": 0,
-            "y": 6
+            "y": 5
           },
           "fieldConfig": {
             "defaults": {
@@ -2418,7 +1312,7 @@
             }
           ],
           "transparent": false,
-          "description": "Total stake backing each active validator \u2014 higher stake means more network weight"
+          "description": "Total stake backing each active validator — higher stake means more network weight"
         },
         {
           "title": "Era points per validator",
@@ -2428,7 +1322,7 @@
             "h": 14,
             "w": 12,
             "x": 12,
-            "y": 6
+            "y": 5
           },
           "fieldConfig": {
             "defaults": {
@@ -2474,7 +1368,7 @@
             }
           ],
           "transparent": false,
-          "description": "Reward points earned this era \u2014 proportional to blocks produced and duties fulfilled"
+          "description": "Reward points earned this era — proportional to blocks produced and duties fulfilled"
         },
         {
           "title": "All validators",
@@ -2485,7 +1379,7 @@
             "h": 14,
             "w": 24,
             "x": 0,
-            "y": 20
+            "y": 19
           },
           "fieldConfig": {
             "defaults": {
@@ -2715,54 +1609,23 @@
             }
           ],
           "transparent": false
-        }
-      ],
-      "transparent": false
-    },
-    {
-      "title": "\u2b21 Node performance",
-      "type": "row",
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 2
-      },
-      "collapsed": true,
-      "panels": [
+        },
         {
-          "title": "Peers",
-          "type": "stat",
+          "title": "Stake distribution",
+          "type": "piechart",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 5,
-            "w": 3,
+            "h": 12,
+            "w": 12,
             "x": 0,
-            "y": 3
+            "y": 33
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "none",
+              "unit": "currencyUSD",
               "decimals": 0,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 3
-                  },
-                  {
-                    "color": "#5000BF",
-                    "value": 5
-                  }
-                ]
-              },
               "color": {
-                "mode": "thresholds"
+                "mode": "palette-classic"
               }
             }
           },
@@ -2772,28 +1635,37 @@
                 "lastNotNull"
               ]
             },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "legend": {
+              "displayMode": "table",
+              "placement": "right",
+              "values": [
+                "value",
+                "percent"
+              ]
+            },
+            "tooltip": {
+              "mode": "single"
+            },
+            "pieType": "donut"
           },
           "targets": [
             {
-              "expr": "substrate_sub_libp2p_peers_count{job=\"sxt-node\"}",
-              "legendFormat": ""
+              "expr": "sxt_validator_total_stake_usd",
+              "legendFormat": "{{address}}"
             }
           ],
           "transparent": false,
-          "description": "Number of nodes directly connected to your validator"
+          "description": "Stake distribution across validators (USD)"
         },
         {
-          "title": "Peers by role",
-          "type": "piechart",
-          "datasource": "Prometheus",
+          "title": "Era rewards history",
+          "type": "barchart",
+          "datasource": "ClickHouse",
           "gridPos": {
-            "h": 5,
-            "w": 4,
-            "x": 3,
-            "y": 3
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 33
           },
           "fieldConfig": {
             "defaults": {
@@ -2804,7 +1676,121 @@
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "Authority"
+                  "options": "network_reward"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#CC0AAC",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Network reward (SXT)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "era"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "hidden"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "orientation": "vertical",
+            "showValue": "never",
+            "stacking": "none",
+            "groupWidth": 0.5,
+            "barWidth": 1.0,
+            "tooltip": {
+              "mode": "single"
+            },
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "xTickLabelRotation": -45
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT toString(era) as era, network_reward FROM sxt.v_era_rewards ORDER BY era",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Total reward distributed to all validators per era (SXT). 1 bar = 1 era = 1 day."
+        },
+        {
+          "title": "Delegation changes",
+          "type": "barchart",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 41
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "inflows"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#37872D",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Inflows"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "outflows"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#C4162A",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Outflows"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "net_change"
                 },
                 "properties": [
                   {
@@ -2813,13 +1799,566 @@
                       "fixedColor": "#5000BF",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Net change"
                   }
                 ]
               },
               {
                 "matcher": {
                   "id": "byName",
-                  "options": "Full"
+                  "options": "era"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "hidden"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "orientation": "vertical",
+            "showValue": "never",
+            "stacking": "none",
+            "groupWidth": 0.8,
+            "barWidth": 0.9,
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "xTickLabelRotation": -45
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT toString(era) as era, inflows, outflows, net_change FROM sxt.v_delegation_changes ORDER BY era",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Delegation stake changes per era. Green = inflows, Red = outflows, Purple = net. 1 bar = 1 era."
+        }
+      ],
+      "description": "All validators on-chain: totals, stake distribution, era points, era rewards history, delegation flows, full sortable table."
+    },
+    {
+      "title": "⬢ Validator explorer",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "panels": [
+        {
+          "title": "Estimated APR per validator",
+          "type": "timeseries",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 1
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "custom": {
+                "lineWidth": 1,
+                "fillOpacity": 0,
+                "showPoints": "never"
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "★ ${validator}"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#5000BF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "expr": "sxt_validator_estimated_apr",
+              "legendFormat": "{{address}}"
+            }
+          ],
+          "transparent": false
+        },
+        {
+          "title": "Stake per validator over time",
+          "type": "timeseries",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "h": 12,
+            "w": 12,
+            "x": 12,
+            "y": 1
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "custom": {
+                "lineWidth": 1,
+                "fillOpacity": 0,
+                "showPoints": "never",
+                "stacking": {
+                  "mode": "none"
+                }
+              }
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "★ ${validator}"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#5000BF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.lineWidth",
+                    "value": 3
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            }
+          },
+          "targets": [
+            {
+              "expr": "sxt_validator_total_stake",
+              "legendFormat": "{{address}}"
+            }
+          ],
+          "transparent": false,
+          "description": "Total stake (SXT) per validator over time. Click legend to filter."
+        },
+        {
+          "title": "★ Total reward generated",
+          "type": "stat",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 9
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 2,
+              "color": {
+                "fixedColor": "#5000BF",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "expr": "sxt_validator_estimated_era_reward{address=~\".*${validator}.*\"}",
+              "legendFormat": ""
+            }
+          ],
+          "transparent": false,
+          "description": "Total reward generated by your validator in last era (SXT). Split between you and your delegators."
+        },
+        {
+          "title": "★ APR",
+          "type": "stat",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 9
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2,
+              "color": {
+                "fixedColor": "#5000BF",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "expr": "sxt_validator_estimated_apr{address=~\".*${validator}.*\"}",
+              "legendFormat": ""
+            }
+          ],
+          "transparent": false,
+          "description": "Estimated annual return for selected validator"
+        },
+        {
+          "title": "★ 84-day commission",
+          "type": "stat",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 13
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "fixedColor": "#5000BF",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT sum(commission_sxt) as v FROM sxt.v_validator_earnings WHERE validator_name = '${validator}'",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Commission earned from delegators over last 84 days (SXT)"
+        },
+        {
+          "title": "★ 84-day total earned",
+          "type": "stat",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 13
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "fixedColor": "#5000BF",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT sum(total_earned_sxt) as v FROM sxt.v_validator_earnings WHERE validator_name = '${validator}'",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Total operator earnings (commission + own yield) over last 84 days (SXT)"
+        },
+        {
+          "title": "★ Monthly commission",
+          "type": "stat",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 13
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "fixedColor": "#5000BF",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT comm_sxt as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Commission earned from delegators in current month (SXT)"
+        },
+        {
+          "title": "★ Monthly own yield",
+          "type": "stat",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 13
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "fixedColor": "#6F4D80",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT yield_sxt as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Yield from own staked SXT in current month (SXT)"
+        },
+        {
+          "title": "★ Monthly total",
+          "type": "stat",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 0,
+            "y": 17
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "fixedColor": "#5000BF",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT total_sxt as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Total operator earnings in current month (SXT)"
+        },
+        {
+          "title": "★ Monthly total (USD)",
+          "type": "stat",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 6,
+            "y": 17
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "currencyUSD",
+              "decimals": 2,
+              "color": {
+                "fixedColor": "#CC0AAC",
+                "mode": "fixed"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "none",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT total_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as v FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month DESC LIMIT 1",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Total operator earnings in current month (USD at current price)"
+        },
+        {
+          "title": "Earnings per era",
+          "type": "barchart",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 21
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 2
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "commission_sxt"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#5000BF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "left"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Commission (SXT)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "own_yield_sxt"
                 },
                 "properties": [
                   {
@@ -2828,35 +2367,353 @@
                       "fixedColor": "#6F4D80",
                       "mode": "fixed"
                     }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "left"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Own yield (SXT)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "commission_usd"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#CC0AAC",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Commission (USD)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "own_yield_usd"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9F6FBF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Own yield (USD)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "era"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "hidden"
                   }
                 ]
               }
             ]
           },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+            "orientation": "vertical",
+            "showValue": "never",
+            "stacking": "none",
+            "groupWidth": 0.8,
+            "barWidth": 0.9,
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
             },
             "legend": {
               "displayMode": "list",
-              "placement": "right"
+              "placement": "bottom"
             },
-            "pieType": "donut"
+            "xTickLabelRotation": -45
           },
           "targets": [
             {
-              "expr": "sxt_peers_authority",
-              "legendFormat": "Authority"
-            },
-            {
-              "expr": "sxt_peers_full",
-              "legendFormat": "Full"
+              "rawSql": "SELECT toString(era) as era, commission_sxt, own_yield_sxt, commission_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as commission_usd, own_yield_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as own_yield_usd FROM sxt.v_validator_earnings WHERE validator_name = '${validator}' ORDER BY era",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
             }
           ],
           "transparent": false,
-          "description": "Breakdown of connected peers \u2014 Authority (validators) vs Full (non-validating nodes)"
+          "description": "Per-era earnings. Left axis: SXT. Right axis: USD (at current price). 1 bar group = 1 era = 1 day.",
+          "transformations": [
+            {
+              "id": "filterFieldsByName",
+              "options": {
+                "include": {
+                  "pattern": "^(era|month)$|${earnings_view:raw}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "Monthly earnings",
+          "type": "barchart",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 10,
+            "w": 24,
+            "x": 0,
+            "y": 31
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "comm_sxt"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#5000BF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "left"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Commission (SXT)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "yield_sxt"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6F4D80",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "left"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Own yield (SXT)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "comm_usd"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#CC0AAC",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Commission (USD)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "yield_usd"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#9F6FBF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "right"
+                  },
+                  {
+                    "id": "unit",
+                    "value": "currencyUSD"
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Own yield (USD)"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "orientation": "vertical",
+            "showValue": "always",
+            "stacking": "none",
+            "groupWidth": 0.7,
+            "barWidth": 0.8,
+            "tooltip": {
+              "mode": "multi",
+              "sort": "desc"
+            },
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            }
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT month, comm_sxt, yield_sxt, comm_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as comm_usd, yield_sxt * (SELECT price_usd FROM sxt.price_history ORDER BY timestamp DESC LIMIT 1) as yield_usd FROM sxt.v_validator_monthly WHERE validator_name = '${validator}' ORDER BY month",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Monthly totals. Left axis: SXT. Right axis: USD (at current price).",
+          "transformations": [
+            {
+              "id": "filterFieldsByName",
+              "options": {
+                "include": {
+                  "pattern": "^(era|month)$|${earnings_view:raw}"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "title": "★ Total stake over time",
+          "type": "barchart",
+          "datasource": "ClickHouse",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 41
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "total_stake"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#5000BF",
+                      "mode": "fixed"
+                    }
+                  },
+                  {
+                    "id": "displayName",
+                    "value": "Total stake (SXT)"
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "era"
+                },
+                "properties": [
+                  {
+                    "id": "custom.axisPlacement",
+                    "value": "hidden"
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "orientation": "vertical",
+            "showValue": "never",
+            "stacking": "none",
+            "groupWidth": 0.8,
+            "barWidth": 0.9,
+            "tooltip": {
+              "mode": "single"
+            },
+            "legend": {
+              "displayMode": "list",
+              "placement": "bottom"
+            },
+            "xTickLabelRotation": -45
+          },
+          "targets": [
+            {
+              "rawSql": "SELECT toString(era) as era, argMax(total_stake, timestamp) as total_stake FROM sxt.delegation_snapshots WHERE validator_name LIKE '%${validator}%' OR validator_address LIKE '%${validator}%' GROUP BY era ORDER BY era",
+              "format": 2,
+              "editorType": "sql",
+              "queryType": "table",
+              "refId": "A"
+            }
+          ],
+          "transparent": false,
+          "description": "Validator total stake (own + delegated) per era."
         },
         {
           "title": "BABE blocks produced",
@@ -2865,8 +2722,8 @@
           "gridPos": {
             "h": 5,
             "w": 5,
-            "x": 7,
-            "y": 3
+            "x": 0,
+            "y": 49
           },
           "fieldConfig": {
             "defaults": {
@@ -2934,6 +2791,148 @@
           ],
           "transparent": false,
           "description": "Blocks produced this epoch vs expected average per validator"
+        }
+      ],
+      "description": "Drill-down by validator (selected via the dropdown above): earnings, commission, own yield, APR, stake history, block production."
+    },
+    {
+      "title": "⬢ This validator",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "panels": [
+        {
+          "title": "Peers",
+          "type": "stat",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "h": 5,
+            "w": 3,
+            "x": 0,
+            "y": 1
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "#CC0AAC",
+                    "value": 3
+                  },
+                  {
+                    "color": "#5000BF",
+                    "value": 5
+                  }
+                ]
+              },
+              "color": {
+                "mode": "thresholds"
+              }
+            }
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "graphMode": "area",
+            "colorMode": "value",
+            "textMode": "value"
+          },
+          "targets": [
+            {
+              "expr": "substrate_sub_libp2p_peers_count{job=\"sxt-node\"}",
+              "legendFormat": ""
+            }
+          ],
+          "transparent": false,
+          "description": "Number of nodes directly connected to your validator"
+        },
+        {
+          "title": "Peers by role",
+          "type": "piechart",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "h": 5,
+            "w": 4,
+            "x": 3,
+            "y": 1
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": [
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Authority"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#5000BF",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              },
+              {
+                "matcher": {
+                  "id": "byName",
+                  "options": "Full"
+                },
+                "properties": [
+                  {
+                    "id": "color",
+                    "value": {
+                      "fixedColor": "#6F4D80",
+                      "mode": "fixed"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            },
+            "legend": {
+              "displayMode": "list",
+              "placement": "right"
+            },
+            "pieType": "donut"
+          },
+          "targets": [
+            {
+              "expr": "sxt_peers_authority",
+              "legendFormat": "Authority"
+            },
+            {
+              "expr": "sxt_peers_full",
+              "legendFormat": "Full"
+            }
+          ],
+          "transparent": false,
+          "description": "Breakdown of connected peers — Authority (validators) vs Full (non-validating nodes)"
         },
         {
           "title": "Peers lagging",
@@ -2942,8 +2941,8 @@
           "gridPos": {
             "h": 5,
             "w": 3,
-            "x": 12,
-            "y": 3
+            "x": 7,
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -2988,7 +2987,7 @@
             }
           ],
           "transparent": false,
-          "description": "Connected peers more than 5 blocks behind \u2014 indicates slow or stalled nodes"
+          "description": "Connected peers more than 5 blocks behind — indicates slow or stalled nodes"
         },
         {
           "title": "GRANDPA votes",
@@ -2997,8 +2996,8 @@
           "gridPos": {
             "h": 5,
             "w": 5,
-            "x": 15,
-            "y": 3
+            "x": 10,
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3078,8 +3077,8 @@
           "gridPos": {
             "h": 5,
             "w": 4,
-            "x": 20,
-            "y": 3
+            "x": 15,
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3139,7 +3138,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 8
+            "y": 6
           },
           "fieldConfig": {
             "defaults": {
@@ -3233,7 +3232,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 8
+            "y": 6
           },
           "fieldConfig": {
             "defaults": {
@@ -3297,7 +3296,7 @@
             }
           ],
           "transparent": false,
-          "description": "How long your validator takes to build a block \u2014 lower is better"
+          "description": "How long your validator takes to build a block — lower is better"
         },
         {
           "title": "Network bandwidth",
@@ -3307,7 +3306,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 8
+            "y": 6
           },
           "fieldConfig": {
             "defaults": {
@@ -3381,7 +3380,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 16
+            "y": 14
           },
           "fieldConfig": {
             "defaults": {
@@ -3445,7 +3444,7 @@
             }
           ],
           "transparent": false,
-          "description": "Rate of prevotes and precommits being cast \u2014 indicates finality health"
+          "description": "Rate of prevotes and precommits being cast — indicates finality health"
         },
         {
           "title": "Block import time",
@@ -3455,7 +3454,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 16
+            "y": 14
           },
           "fieldConfig": {
             "defaults": {
@@ -3519,7 +3518,7 @@
             }
           ],
           "transparent": false,
-          "description": "Time to verify and import each block \u2014 spikes indicate load or slow storage"
+          "description": "Time to verify and import each block — spikes indicate load or slow storage"
         },
         {
           "title": "Gossip messages",
@@ -3529,7 +3528,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 16
+            "y": 14
           },
           "fieldConfig": {
             "defaults": {
@@ -3593,21 +3592,21 @@
             }
           ],
           "transparent": false,
-          "description": "Network gossip activity \u2014 registered vs expired messages"
+          "description": "Network gossip activity — registered vs expired messages"
         }
       ],
-      "transparent": false
+      "description": "Metrics from the local node we are connected to: peers, BABE/GRANDPA health, proposal & import times, bandwidth, gossip."
     },
     {
-      "title": "\u2b21 Host resources",
+      "title": "⬢ Host machine",
       "type": "row",
+      "collapsed": true,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 3
+        "y": 5
       },
-      "collapsed": true,
       "panels": [
         {
           "title": "CPU",
@@ -3617,7 +3616,7 @@
             "h": 6,
             "w": 4,
             "x": 0,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3667,7 +3666,7 @@
             "h": 6,
             "w": 4,
             "x": 4,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3717,7 +3716,7 @@
             "h": 6,
             "w": 4,
             "x": 8,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3767,7 +3766,7 @@
             "h": 3,
             "w": 3,
             "x": 12,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3805,7 +3804,7 @@
             "h": 3,
             "w": 3,
             "x": 15,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3843,7 +3842,7 @@
             "h": 3,
             "w": 3,
             "x": 18,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3881,7 +3880,7 @@
             "h": 3,
             "w": 3,
             "x": 21,
-            "y": 4
+            "y": 1
           },
           "fieldConfig": {
             "defaults": {
@@ -3919,7 +3918,7 @@
             "h": 3,
             "w": 3,
             "x": 12,
-            "y": 7
+            "y": 4
           },
           "fieldConfig": {
             "defaults": {
@@ -3957,7 +3956,7 @@
             "h": 3,
             "w": 3,
             "x": 15,
-            "y": 7
+            "y": 4
           },
           "fieldConfig": {
             "defaults": {
@@ -3995,7 +3994,7 @@
             "h": 3,
             "w": 3,
             "x": 18,
-            "y": 7
+            "y": 4
           },
           "fieldConfig": {
             "defaults": {
@@ -4033,7 +4032,7 @@
             "h": 3,
             "w": 3,
             "x": 21,
-            "y": 7
+            "y": 4
           },
           "fieldConfig": {
             "defaults": {
@@ -4071,7 +4070,7 @@
             "h": 8,
             "w": 8,
             "x": 0,
-            "y": 10
+            "y": 7
           },
           "fieldConfig": {
             "defaults": {
@@ -4127,7 +4126,7 @@
             "h": 8,
             "w": 8,
             "x": 8,
-            "y": 10
+            "y": 7
           },
           "fieldConfig": {
             "defaults": {
@@ -4200,7 +4199,7 @@
             "h": 8,
             "w": 8,
             "x": 16,
-            "y": 10
+            "y": 7
           },
           "fieldConfig": {
             "defaults": {
@@ -4273,7 +4272,7 @@
             "h": 8,
             "w": 12,
             "x": 0,
-            "y": 18
+            "y": 15
           },
           "fieldConfig": {
             "defaults": {
@@ -4346,7 +4345,7 @@
             "h": 8,
             "w": 12,
             "x": 12,
-            "y": 18
+            "y": 15
           },
           "fieldConfig": {
             "defaults": {
@@ -4412,7 +4411,7 @@
           "transparent": false
         }
       ],
-      "transparent": false
+      "description": "Hardware and OS resources of the VPS hosting the node: CPU, RAM, disk, I/O, network."
     }
   ],
   "id": null,
@@ -4442,7 +4441,7 @@
           "value": "/sxt-data"
         },
         "hide": 2,
-        "description": "Mountpoint for disk usage gauge \u2014 override in dashboard settings"
+        "description": "Mountpoint for disk usage gauge — override in dashboard settings"
       },
       {
         "name": "earnings_view",

@@ -109,7 +109,8 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_SERVER_ROOT_URL: "http://localhost:${GRAFANA_PORT:-3000}"
-      GF_INSTALL_PLUGINS: grafana-clickhouse-datasource
+      # Plugins: ClickHouse datasource + Business Suite (Volkov Labs)
+      GF_INSTALL_PLUGINS: "grafana-clickhouse-datasource,volkovlabs-echarts-panel,volkovlabs-table-panel,marcusolsson-dynamictext-panel"
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-sxt_exporter}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
     volumes:
