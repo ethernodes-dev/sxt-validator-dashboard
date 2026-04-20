@@ -15,7 +15,7 @@
     "to": "now"
   },
   "schemaVersion": 41,
-  "version": 29,
+  "version": 38,
   "style": "dark",
   "panels": [
     {
@@ -51,7 +51,7 @@
             }
           ],
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">BEST BLOCK</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">BEST BLOCK</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9-]/g,'');if(r){el.textContent=parseInt(r,10).toLocaleString('en-US');}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
             "contentPartials": [],
             "defaultContent": "",
             "editors": [
@@ -76,7 +76,7 @@
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "locale",
+              "unit": "none",
               "decimals": 0
             },
             "overrides": []
@@ -113,7 +113,7 @@
             }
           ],
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">FINALIZED</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">FINALIZED</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9-]/g,'');if(r){el.textContent=parseInt(r,10).toLocaleString('en-US');}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
             "contentPartials": [],
             "defaultContent": "",
             "editors": [
@@ -138,7 +138,7 @@
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "locale",
+              "unit": "none",
               "decimals": 0
             },
             "overrides": []
@@ -545,7 +545,7 @@
             }
           ],
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">GRANDPA ROUND</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">GRANDPA ROUND</p>\n  <p class=\"sxt-num sxt-num--xl\" data-raw=\"{{value}}\">{{value}}</p>\n</div>\n<img src=\"x\" onerror=\"(function(){document.querySelectorAll('p[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9-]/g,'');if(r){el.textContent=parseInt(r,10).toLocaleString('en-US');}})})();this.remove()\" style=\"display:none\">\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
             "contentPartials": [],
             "defaultContent": "",
             "editors": [
@@ -570,7 +570,7 @@
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "locale",
+              "unit": "none",
               "decimals": 0
             },
             "overrides": []
@@ -722,309 +722,375 @@
       },
       "panels": [
         {
-          "title": "SXT / USD",
-          "type": "stat",
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
           "datasource": "Prometheus",
+          "description": "",
           "gridPos": {
-            "h": 4,
-            "w": 3,
             "x": 0,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "none",
-              "decimals": 6,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "y": 1,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_token_price_usd",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Current SXT token price in USD (CoinGecko)"
-        },
-        {
-          "title": "24h change",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 3,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">SXT / USD</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "percent",
-              "decimals": 2,
-              "color": {
-                "mode": "thresholds"
-              },
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "red",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": -5
-                  },
-                  {
-                    "color": "#6F4D80",
-                    "value": -1
-                  },
-                  {
-                    "color": "#5000BF",
-                    "value": 0
-                  },
-                  {
-                    "color": "green",
-                    "value": 3
-                  }
-                ]
+              "unit": "currencyUSD",
+              "decimals": 6
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 4,
+            "y": 1,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_token_price_change_24h_pct",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Price change in last 24 hours (%)"
-        },
-        {
-          "title": "Market cap",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 6,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <div style=\"display:flex; align-items:center; gap:8px; justify-content:center;\">\n    <span class=\"sxt-status-dot\" data-status=\"{{#if (contains value \"-\")}}danger{{else}}ok{{/if}}\"></span>\n    <p class=\"sxt-label\" style=\"margin:0;\">24H CHANGE</p>\n  </div>\n  <p class=\"sxt-num sxt-num--xl\" style=\"margin:0;\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-status-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background: var(--sxt-text-dim); }\n.sxt-status-dot[data-status=\"ok\"]     { background: var(--sxt-success); box-shadow: 0 0 6px var(--sxt-success); }\n.sxt-status-dot[data-status=\"danger\"] { background: var(--sxt-danger);  box-shadow: 0 0 6px var(--sxt-danger); }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
-              "unit": "currencyUSD",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
+              "unit": "percent",
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 8,
+            "y": 1,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_token_market_cap_usd",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "SXT token market capitalization (USD)"
-        },
-        {
-          "title": "24h volume",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 9,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">MARKET CAP</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "currencyUSD",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 12,
+            "y": 1,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_token_volume_24h_usd",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "SXT 24h trading volume across all exchanges tracked by CoinGecko (CEX + DEX combined)"
-        },
-        {
-          "title": "Total stake (USD)",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 12,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">24H VOLUME</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "currencyUSD",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 16,
+            "y": 1,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_era_total_stake_usd",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Total network stake in USD"
-        },
-        {
-          "title": "Network era reward",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 4,
-            "w": 3,
-            "x": 15,
-            "y": 1
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">TOTAL STAKE (USD)</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "currencyUSD",
-              "decimals": 2,
-              "color": {
-                "fixedColor": "#CC0AAC",
-                "mode": "fixed"
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+          ]
+        },
+        {
+          "type": "marcusolsson-dynamictext-panel",
+          "title": "",
+          "datasource": "Prometheus",
+          "description": "",
+          "gridPos": {
+            "x": 20,
+            "y": 1,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
               "expr": "sxt_staking_last_era_reward_usd",
-              "legendFormat": ""
+              "refId": "A",
+              "legendFormat": "",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false,
-          "description": "Total reward distributed to ALL validators in last completed era (USD)"
-        },
-        {
-          "title": "Price history",
-          "type": "timeseries",
-          "datasource": "ClickHouse",
-          "gridPos": {
-            "h": 8,
-            "w": 12,
-            "x": 0,
-            "y": 5
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\">\n  <p class=\"sxt-label\">NETWORK ERA REWARD</p>\n  <p class=\"sxt-num sxt-num--xl\">{{value}}</p>\n</div>\n<style>\n.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:10px; height:100%; }\n.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }\n</style>\n",
+            "contentPartials": [],
+            "defaultContent": "",
+            "editors": [
+              "text"
+            ],
+            "everyRow": true,
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "afterRenderEnabled": false,
+              "beforeRender": "",
+              "beforeRenderEnabled": false
+            },
+            "renderMode": "everyRow",
+            "status": {
+              "mode": "default"
+            },
+            "styles": "",
+            "wrap": true
           },
           "fieldConfig": {
             "defaults": {
               "unit": "currencyUSD",
-              "decimals": 6,
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 12,
-                "showPoints": "never"
-              }
+              "decimals": 2
             },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "price_usd"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
+            "overrides": []
           },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
             }
+          ]
+        },
+        {
+          "type": "volkovlabs-echarts-panel",
+          "title": "Price history",
+          "datasource": "ClickHouse",
+          "description": "SXT token price history (USD) from CoinGecko, stored in ClickHouse",
+          "gridPos": {
+            "x": 0,
+            "y": 5,
+            "w": 24,
+            "h": 10
           },
           "targets": [
             {
@@ -1035,7 +1101,28 @@
               "refId": "A"
             }
           ],
-          "transparent": false
+          "options": {
+            "editor": {
+              "format": "full",
+              "height": 600
+            },
+            "getOption": "const series = context.panel.data.series.map((s) => {\n  const sData = s.fields.find((f) => f.type === \"number\");\n  const sTime = s.fields.find((f) => f.type === \"time\");\n  if (!sData || !sTime) return null;\n  const values = sData.values.buffer || sData.values;\n  const times  = sTime.values.buffer || sTime.values;\n  return {\n    name: \"Price (USD)\",\n    type: \"line\",\n    smooth: true,\n    showSymbol: false,\n    lineStyle: {\n      width: 2,\n      color: {\n        type: \"linear\", x: 0, y: 0, x2: 1, y2: 0,\n        colorStops: [\n          { offset: 0, color: \"#5000BF\" },\n          { offset: 1, color: \"#CC0AAC\" },\n        ],\n      },\n    },\n    areaStyle: {\n      color: {\n        type: \"linear\", x: 0, y: 0, x2: 0, y2: 1,\n        colorStops: [\n          { offset: 0, color: \"rgba(204, 10, 172, 0.35)\" },\n          { offset: 1, color: \"rgba(80, 0, 191, 0.02)\" },\n        ],\n      },\n    },\n    data: times.map((t, i) => [t, values[i]]),\n  };\n}).filter(Boolean);\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 20, bottom: 30, containLabel: true },\n  tooltip: {\n    trigger: \"axis\",\n    backgroundColor: \"rgba(36, 9, 53, 0.95)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\" },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    valueFormatter: (v) => \"$\" + Number(v).toFixed(6),\n  },\n  xAxis: {\n    type: \"time\",\n    axisLine:  { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false },\n  },\n  yAxis: {\n    type: \"value\",\n    scale: true,\n    axisLine:  { show: false },\n    axisTick:  { show: false },\n    axisLabel: {\n      color: \"#A090B5\",\n      fontFamily: \"JetBrains Mono\",\n      fontSize: 10,\n      formatter: (v) => \"$\" + v.toFixed(6),\n    },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } },\n  },\n  series: series,\n};\n",
+            "map": "",
+            "renderer": "canvas",
+            "themeEditor": {
+              "config": {},
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "dataset": [],
+              "series": []
+            }
+          },
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          }
         }
       ],
       "description": "Token price, market cap, volume and network-level USD metrics."

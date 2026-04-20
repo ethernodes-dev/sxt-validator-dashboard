@@ -111,6 +111,10 @@ services:
       GF_SERVER_ROOT_URL: "http://localhost:${GRAFANA_PORT:-3000}"
       # Plugins: ClickHouse datasource + Business Suite (Volkov Labs)
       GF_INSTALL_PLUGINS: "grafana-clickhouse-datasource,volkovlabs-echarts-panel,volkovlabs-table-panel,marcusolsson-dynamictext-panel"
+      GF_PANELS_DISABLE_SANITIZE_HTML: "true"
+      # Force locale so Grafana's 'locale' unit formats with en-US (commas for thousands)
+      LANG: "en_US.UTF-8"
+      LC_ALL: "en_US.UTF-8"
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-sxt_exporter}
       CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
     volumes:
