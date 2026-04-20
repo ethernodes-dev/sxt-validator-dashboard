@@ -1,0 +1,334 @@
+/* ============================================================================
+ * SXT Validator Dashboard — Global Theme
+ * Injected into every Grafana page via [paths] static_root_path and custom.css.
+ * Loaded BEFORE Grafana's theme CSS so brand tokens cascade into every panel.
+ *
+ * Structure:
+ *   1. Font faces (served locally from /grafana/branding/fonts/)
+ *   2. Brand tokens (CSS vars) — the single source of truth for colors/type
+ *   3. Global Grafana overrides (background, scrollbars, row headers)
+ *   4. Reusable card classes (.sxt-card, .sxt-card--hero, .sxt-card--compact)
+ *   5. Reusable text helpers (.sxt-num, .sxt-label, .sxt-delta)
+ *   6. Animations (fade-in, pulse-on-update)
+ *
+ * Used by every Business Text panel and Business Charts ECharts template.
+ * ============================================================================ */
+
+/* ---------- 1. Font faces ------------------------------------------------- */
+@font-face {
+  font-family: 'Inter';
+  src: url('/public/sxt-branding/fonts/Inter-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/public/sxt-branding/fonts/Inter-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('/public/sxt-branding/fonts/Inter-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/public/sxt-branding/fonts/JetBrainsMono-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/public/sxt-branding/fonts/JetBrainsMono-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/public/sxt-branding/fonts/JetBrainsMono-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- 2. Brand tokens ---------------------------------------------- */
+:root {
+  /* -- Official SXT brand palette (from brandkit Jan 2025) ----------------- */
+  --sxt-electric-purple: #5000BF;
+  --sxt-neon-magenta:    #CC0AAC;
+  --sxt-nebula-black:    #100217;
+  --sxt-nebula-silver:   #6F4D80;
+  --sxt-off-white:       #E6E6E6;
+
+  /* -- Extended scale (derived, kept compatible with brand) --------------- */
+  --sxt-bg:              #100217;        /* main dashboard background */
+  --sxt-bg-elevated:     #1A0528;        /* cards, panels one level up */
+  --sxt-bg-elevated-2:   #240935;        /* nested surfaces, hover states */
+  --sxt-border:          #3A1857;        /* subtle purple-tinted borders */
+  --sxt-border-strong:   #5000BF;        /* active / focused borders */
+
+  --sxt-text:            #E6E6E6;        /* primary text */
+  --sxt-text-muted:      #A090B5;        /* secondary text, labels */
+  --sxt-text-dim:        #6F4D80;        /* tertiary, captions */
+
+  /* -- Functional / state colors (high-contrast, brand-compatible) -------- */
+  --sxt-success:         #00E5A8;        /* cyan-mint, reads as OK */
+  --sxt-warning:         #FFB020;        /* amber, warn */
+  --sxt-danger:          #FF4D6D;        /* coral-red, not pure red (too harsh on dark) */
+  --sxt-info:            #4DA6FF;        /* periwinkle, info/neutral */
+
+  /* -- The OFFICIAL SXT radial gradient (extracted from Hexasphere SVG) --- */
+  /* Use on hero cards, major values, section highlights.                   */
+  --sxt-gradient-hero: radial-gradient(
+    circle at 30% 30%,
+    #5000BF 0%,
+    #9700C7 15%,
+    #CC0AAC 35%,
+    #FF00D5 55%,
+    #F373FF 75%,
+    #99CCFF 100%
+  );
+  /* Linear variant for text fills (background-clip: text) */
+  --sxt-gradient-text: linear-gradient(
+    90deg,
+    #5000BF 0%,
+    #CC0AAC 50%,
+    #FF00D5 100%
+  );
+  /* Subtle variant for backgrounds of standard cards */
+  --sxt-gradient-subtle: linear-gradient(
+    135deg,
+    rgba(80, 0, 191, 0.08) 0%,
+    rgba(204, 10, 172, 0.04) 100%
+  );
+
+  /* -- Typography --------------------------------------------------------- */
+  --sxt-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --sxt-font-mono: 'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+
+  /* -- Spacing / radii ---------------------------------------------------- */
+  --sxt-radius-sm: 6px;
+  --sxt-radius-md: 12px;
+  --sxt-radius-lg: 16px;
+
+  /* -- Shadows / glows ---------------------------------------------------- */
+  --sxt-glow-purple:  0 0 30px rgba(80, 0, 191, 0.35);
+  --sxt-glow-magenta: 0 0 30px rgba(204, 10, 172, 0.30);
+  --sxt-shadow-card:  0 4px 16px rgba(0, 0, 0, 0.40);
+}
+
+/* ---------- 3. Global Grafana overrides ---------------------------------- */
+/* Main app background — align to Nebula Black exactly */
+body,
+.main-view,
+.page-dashboard,
+.dashboard-container,
+[class*="main-view"],
+[class*="dashboard-container"] {
+  background: var(--sxt-bg) !important;
+}
+
+/* Grafana panel chrome — remove default backgrounds to let our cards breathe */
+[class*="panel-container"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Row headers — style them with brand */
+.dashboard-row__title,
+[class*="dashboard-row__title"] {
+  font-family: var(--sxt-font-sans) !important;
+  font-weight: 600 !important;
+  font-size: 15px !important;
+  letter-spacing: 0.02em !important;
+  color: var(--sxt-off-white) !important;
+  text-transform: uppercase !important;
+}
+
+/* Scrollbars */
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track { background: var(--sxt-bg); }
+*::-webkit-scrollbar-thumb {
+  background: var(--sxt-border);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--sxt-electric-purple); }
+
+/* ---------- 4. Reusable card classes ------------------------------------- */
+/* Base card — used inside Business Text panels.                            */
+/* Use with <div class="sxt-card">...</div> at the root of the panel HTML.  */
+.sxt-card {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 16px 18px;
+  background: var(--sxt-bg-elevated);
+  border: 1px solid var(--sxt-border);
+  border-radius: var(--sxt-radius-md);
+  box-shadow: var(--sxt-shadow-card);
+  font-family: var(--sxt-font-sans);
+  color: var(--sxt-text);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  animation: sxt-fade-in 0.35s ease;
+}
+.sxt-card:hover {
+  border-color: var(--sxt-border-strong);
+  box-shadow: var(--sxt-glow-purple);
+}
+
+/* Hero card — the showpiece cards (price, APR, total earned). Glassmorphic. */
+.sxt-card--hero {
+  background:
+    linear-gradient(135deg,
+      rgba(80, 0, 191, 0.15) 0%,
+      rgba(204, 10, 172, 0.08) 50%,
+      rgba(16, 2, 23, 0.95) 100%),
+    var(--sxt-bg-elevated);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(204, 10, 172, 0.3);
+  box-shadow:
+    var(--sxt-shadow-card),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+.sxt-card--hero:hover {
+  border-color: var(--sxt-neon-magenta);
+  box-shadow:
+    var(--sxt-shadow-card),
+    var(--sxt-glow-magenta),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* Compact card — dense stats, minimal padding, smaller numbers */
+.sxt-card--compact {
+  padding: 10px 12px;
+}
+
+/* Status indicator bar — 3px top line that reflects state */
+.sxt-card--ok       { border-top: 2px solid var(--sxt-success); }
+.sxt-card--warn     { border-top: 2px solid var(--sxt-warning); }
+.sxt-card--danger   { border-top: 2px solid var(--sxt-danger); }
+.sxt-card--info     { border-top: 2px solid var(--sxt-info); }
+
+/* ---------- 5. Text helpers ---------------------------------------------- */
+/* Small uppercase label above the number */
+.sxt-label {
+  font-family: var(--sxt-font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sxt-text-muted);
+  margin: 0;
+  line-height: 1;
+}
+
+/* The big number — JetBrains Mono for tabular feel */
+.sxt-num {
+  font-family: var(--sxt-font-mono);
+  font-weight: 500;
+  color: var(--sxt-text);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  margin: 0;
+}
+.sxt-num--sm  { font-size: 18px; }
+.sxt-num--md  { font-size: 24px; }
+.sxt-num--lg  { font-size: 32px; }
+.sxt-num--xl  { font-size: 40px; font-weight: 700; }
+.sxt-num--2xl { font-size: 48px; font-weight: 700; }
+
+/* Gradient fill text — for hero numbers */
+.sxt-num--gradient {
+  background: var(--sxt-gradient-text);
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+          color: transparent;
+}
+
+/* Unit suffix, smaller, muted */
+.sxt-unit {
+  font-family: var(--sxt-font-sans);
+  font-size: 0.5em;
+  font-weight: 400;
+  color: var(--sxt-text-muted);
+  margin-left: 4px;
+  vertical-align: baseline;
+}
+
+/* Delta / change indicator */
+.sxt-delta {
+  font-family: var(--sxt-font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: var(--sxt-radius-sm);
+}
+.sxt-delta--up   { background: rgba(0, 229, 168, 0.12); color: var(--sxt-success); }
+.sxt-delta--down { background: rgba(255,  77, 109, 0.12); color: var(--sxt-danger); }
+.sxt-delta--flat { background: rgba(111, 77, 128, 0.12); color: var(--sxt-text-muted); }
+
+/* Secondary caption (sub-text under the main number) */
+.sxt-caption {
+  font-family: var(--sxt-font-sans);
+  font-size: 11px;
+  color: var(--sxt-text-dim);
+  margin: 0;
+}
+
+/* ---------- 6. Animations ------------------------------------------------ */
+@keyframes sxt-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sxt-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.65; }
+}
+
+.sxt-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sxt-success);
+  box-shadow: 0 0 8px var(--sxt-success);
+  animation: sxt-pulse 2s ease-in-out infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* Decorative Hexasphere watermark — absolute-positioned top-right of hero cards */
+.sxt-hex-deco {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 140px;
+  height: 140px;
+  opacity: 0.08;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Row-level flex layout helpers for dense card internals */
+.sxt-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sxt-col { display: flex; flex-direction: column; gap: 6px; }
+.sxt-spread { display: flex; justify-content: space-between; align-items: center; }

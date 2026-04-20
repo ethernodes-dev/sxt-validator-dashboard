@@ -116,6 +116,10 @@ services:
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      # SXT branding: logos (SVG), fonts (TTF), theme CSS. Served as Grafana static assets.
+      - ./grafana/branding:/usr/share/grafana/public/sxt-branding:ro
+      # Override Grafana's index.html to inject theme <link> before </head>
+      - ./grafana/branding/overrides/index.html:/usr/share/grafana/public/views/index.html:ro
       - grafana-data:/var/lib/grafana
     ports:
       - "${GRAFANA_BIND:-127.0.0.1}:${GRAFANA_PORT:-3000}:3000"
