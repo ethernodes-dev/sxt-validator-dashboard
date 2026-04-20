@@ -340,3 +340,139 @@ button[aria-expanded] span[role="heading"],
 .sxt-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .sxt-col { display: flex; flex-direction: column; gap: 6px; }
 .sxt-spread { display: flex; justify-content: space-between; align-items: center; }
+
+/* ---------- 7. Grafana chrome overrides (Grafana 12 DOM) ------------------
+ * Selectors chosen for stability:
+ *   - Stable DOM anchors: data-testid, aria-label, semantic role.
+ *   - Avoid emotion-generated classes (.css-XXXXX) — those change per build.
+ *   - Use :has() to target structural wrappers identified by descendants.
+ * -------------------------------------------------------------------------- */
+
+/* 7.1  Top bar (the <header> that contains the Breadcrumbs nav + search).
+   No data-testid on the <header>, so we anchor off its descendant nav. */
+header:has(> div > div > nav[aria-label="Breadcrumbs"]),
+header:has(nav[aria-label="Breadcrumbs"]) {
+  /* Same elevation tone as the sidebar so both chrome zones read as a unit,
+     distinct from the Nebula Black dashboard canvas. */
+  background: var(--sxt-bg-elevated-2) !important;
+  border-bottom: 1px solid var(--sxt-border-strong) !important;
+}
+
+/* 7.2  Sidebar / mega menu — stable data-testid. */
+[data-testid="data-testid navigation mega-menu"] {
+  background: var(--sxt-bg-elevated-2) !important;
+  border-right: 1px solid var(--sxt-border) !important;
+}
+
+/* 7.3  Dashboard controls bar (the strip with variables + time picker).
+   Its own background is transparent, but the wrapper above it is gray.
+   We tint both so the strip blends into the dashboard. */
+[data-testid="data-testid dashboard controls"] {
+  background: transparent !important;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+}
+/* The parent canvas-wrapper is what actually shows gray. We find it via
+   :has() on the dashboard-controls descendant. */
+div:has(> [data-testid="data-testid dashboard controls"]) {
+  background: var(--sxt-bg) !important;
+  border-bottom: 1px solid var(--sxt-border) !important;
+}
+
+/* 7.4  Breadcrumb links */
+nav[aria-label="Breadcrumbs"] a,
+nav[aria-label="Breadcrumbs"] span {
+  color: var(--sxt-text-muted) !important;
+}
+nav[aria-label="Breadcrumbs"] a:hover {
+  color: var(--sxt-electric-purple) !important;
+}
+/* Last breadcrumb = current page = stronger color */
+nav[aria-label="Breadcrumbs"] ol > li:last-child,
+nav[aria-label="Breadcrumbs"] ol > li:last-child * {
+  color: var(--sxt-off-white) !important;
+  font-weight: 600 !important;
+}
+
+/* 7.5  Primary brand buttons (Share, Save, etc. — the ones Grafana colors blue)
+   Grafana uses CSS vars or inline styles for these. We use attribute selectors
+   rather than class names to survive builds. */
+/* Share button: removed custom styling.
+   The rainbow gradient was too loud and didn't match the rest of the UI.
+   Let Grafana's default styling apply — we'll theme individual panel
+   buttons later, not global Grafana chrome buttons. */
+
+/* 7.6  Sidebar nav items — hover/active states */
+[data-testid="data-testid navigation mega-menu"] a:hover,
+[data-testid="data-testid navigation mega-menu"] [role="menuitem"]:hover {
+  background: rgba(80, 0, 191, 0.20) !important;
+  color: var(--sxt-off-white) !important;
+}
+[data-testid="data-testid navigation mega-menu"] a[aria-current="page"],
+[data-testid="data-testid navigation mega-menu"] [role="menuitem"][aria-current="page"] {
+  background: rgba(80, 0, 191, 0.30) !important;
+  border-left: 2px solid var(--sxt-electric-purple) !important;
+  color: var(--sxt-off-white) !important;
+}
+
+/* 7.7  Nav toolbar (strip with ★/Edit/Export/Share buttons inside the header).
+   This div has its own rgb(24,27,31) background that fights the header's.
+   Force it transparent so it inherits the header's --sxt-bg-elevated-2. */
+[data-testid="data-testid Nav toolbar"] {
+  background: transparent !important;
+}
+
+/* 7.8  Dashboard template variable selectors (the "validator BCW" and
+   "Earnings combined" dropdowns). The gray comes from the inner
+   input-wrapper div; its background is solid rgb(17,18,23). We match the
+   time picker style, which uses a 10% overlay of the text color. */
+[data-testid="data-testid template variable"] [class*="input-wrapper"] {
+  background: rgba(204, 204, 220, 0.10) !important;
+  border: 1px solid transparent !important;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+[data-testid="data-testid template variable"] [class*="input-wrapper"]:hover,
+[data-testid="data-testid template variable"] [class*="input-wrapper"]:focus-within {
+  background: rgba(204, 204, 220, 0.15) !important;
+  border-color: var(--sxt-border) !important;
+}
+
+/* 7.9  Variable label chips ("validator", "Earnings" text next to each
+   dropdown). These are static labels rendered by Grafana with a colored
+   background that doesn't match our palette. Strip it and let them read
+   as quiet muted text, so the dropdown value stays the visual anchor. */
+[data-testid="data-testid template variable"] label,
+[data-testid="data-testid template variable"] > *:first-child:not([class*="input-wrapper"]) {
+  background: transparent !important;
+  color: var(--sxt-text-muted) !important;
+  border: 1px solid var(--sxt-border) !important;
+  border-right: none !important;
+  font-weight: 400 !important;
+}
+
+/* 7.10  Select/dropdown menu (opened state)
+   Applies to the list that appears when clicking BCW / combined / any
+   Grafana select. Default rgb(34,37,43) gray is replaced with Nebula
+   elevated + purple border. Options get brand hover/focus/selected. */
+[class*="grafana-select-menu"] {
+  background: var(--sxt-bg-elevated-2) !important;
+  border: 1px solid var(--sxt-border-strong) !important;
+  border-radius: var(--sxt-radius-md) !important;
+  box-shadow: var(--sxt-glow-purple) !important;
+}
+[class*="grafana-select-option"] {
+  background: transparent !important;
+  color: var(--sxt-text) !important;
+  transition: background 0.12s ease;
+}
+[class*="grafana-select-option"]:hover,
+[class*="grafana-select-option-focused"] {
+  background: rgba(80, 0, 191, 0.25) !important;
+  color: var(--sxt-off-white) !important;
+}
+/* Selected option (checkmark indicator) */
+[class*="grafana-select-option"][aria-selected="true"] {
+  background: rgba(204, 10, 172, 0.15) !important;
+  color: var(--sxt-off-white) !important;
+  border-left: 2px solid var(--sxt-neon-magenta) !important;
+}
