@@ -15,7 +15,7 @@
     "to": "now"
   },
   "schemaVersion": 41,
-  "version": 65,
+  "version": 68,
   "style": "dark",
   "panels": [
     {
@@ -3494,806 +3494,1120 @@
       },
       "panels": [
         {
-          "title": "CPU",
-          "type": "gauge",
+          "title": "Host status",
+          "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 6,
-            "w": 4,
             "x": 0,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percentunit",
-              "min": 0,
-              "max": 1,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#5000BF",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 0.7
-                  },
-                  {
-                    "color": "#E6E6E6",
-                    "value": 0.9
-                  }
-                ]
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "showThresholdMarkers": true
+            "y": 1,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",job=\"node-exporter\"}[5m]))",
-              "legendFormat": ""
+              "expr": "up{instance=\"sxt-validator-host\",job=\"node-exporter\"}",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
-        },
-        {
-          "title": "Memory",
-          "type": "gauge",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 6,
-            "w": 4,
-            "x": 4,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percentunit",
-              "min": 0,
-              "max": 1,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#5000BF",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 0.7
-                  },
-                  {
-                    "color": "#E6E6E6",
-                    "value": 0.9
-                  }
-                ]
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
           },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">HOST STATUS</p><span class=\"sxt-pill sxt-pill-status\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-status').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n) &amp;&amp; !(n &gt;= 1)){txt.textContent='\u2014';return;}var state=(n &gt;= 1)?'ok':((false)?'warn':'bad');var cfg={ok:{t:'UP',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'\u2014',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'DOWN',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
             },
-            "showThresholdMarkers": true
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "Disk health",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 6,
+            "y": 1,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "1 - (node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})",
-              "legendFormat": ""
+              "expr": "(1 - (node_filesystem_avail_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"} / node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"})) * 100",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
-        },
-        {
-          "title": "Disk",
-          "type": "gauge",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 6,
-            "w": 4,
-            "x": 8,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percentunit",
-              "min": 0,
-              "max": 1,
-              "thresholds": {
-                "mode": "absolute",
-                "steps": [
-                  {
-                    "color": "#5000BF",
-                    "value": null
-                  },
-                  {
-                    "color": "#CC0AAC",
-                    "value": 0.7
-                  },
-                  {
-                    "color": "#E6E6E6",
-                    "value": 0.9
-                  }
-                ]
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
           },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK /sxt-data</p><span class=\"sxt-pill sxt-pill-status\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-status').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n) &amp;&amp; !(n &lt; 80)){txt.textContent='\u2014';return;}var state=(n &lt; 80)?'ok':((n &lt; 90)?'warn':'bad');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'WARNING',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'CRITICAL',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
             },
-            "showThresholdMarkers": true
-          },
-          "targets": [
-            {
-              "expr": "1 - (node_filesystem_avail_bytes{mountpoint=\"$disk_mount\",job=\"node-exporter\"} / node_filesystem_size_bytes{mountpoint=\"$disk_mount\",job=\"node-exporter\"})",
-              "legendFormat": ""
-            }
-          ],
-          "transparent": false
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
         },
         {
-          "title": "RAM total",
-          "type": "stat",
+          "title": "Memory health",
+          "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 3,
-            "w": 3,
             "x": 12,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bytes",
-              "decimals": 1,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+            "y": 1,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "node_memory_MemTotal_bytes{job=\"node-exporter\"}",
-              "legendFormat": ""
+              "expr": "(1 - (node_memory_MemAvailable_bytes{instance=\"sxt-validator-host\"} / node_memory_MemTotal_bytes{instance=\"sxt-validator-host\"})) * 100",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MEMORY</p><span class=\"sxt-pill sxt-pill-status\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-status').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n) &amp;&amp; !(n &lt; 80)){txt.textContent='\u2014';return;}var state=(n &lt; 80)?'ok':((n &lt; 90)?'warn':'bad');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'WARNING',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'PRESSURE',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
         },
         {
-          "title": "Disk total",
-          "type": "stat",
+          "title": "Load health",
+          "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 3,
-            "w": 3,
-            "x": 15,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bytes",
-              "decimals": 1,
-              "color": {
-                "fixedColor": "#5000BF",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+            "x": 18,
+            "y": 1,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "node_filesystem_size_bytes{mountpoint=\"$disk_mount\",job=\"node-exporter\"}",
-              "legendFormat": ""
+              "expr": "node_load1{instance=\"sxt-validator-host\"} / scalar(count(count(node_cpu_seconds_total{instance=\"sxt-validator-host\"}) by (cpu)))",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">SYSTEM LOAD</p><span class=\"sxt-pill sxt-pill-status\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-status').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n) &amp;&amp; !(n &lt; 1)){txt.textContent='\u2014';return;}var state=(n &lt; 1)?'ok':((n &lt; 2)?'warn':'bad');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'ELEVATED',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'OVERLOADED',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "CPU usage",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 5,
+            "w": 4,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "(1 - avg by (instance) (rate(node_cpu_seconds_total{instance=\"sxt-validator-host\",mode=\"idle\"}[1m]))) * 100",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU USAGE</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "RAM used",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 4,
+            "y": 5,
+            "w": 4,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "(1 - (node_memory_MemAvailable_bytes{instance=\"sxt-validator-host\"} / node_memory_MemTotal_bytes{instance=\"sxt-validator-host\"})) * 100",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">RAM USED</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "Disk used",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 8,
+            "y": 5,
+            "w": 4,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "(1 - (node_filesystem_avail_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"} / node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"})) * 100",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK /sxt-data</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "Network RX",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 12,
+            "y": 5,
+            "w": 4,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(node_network_receive_bytes_total{instance=\"sxt-validator-host\",device=~\"enp.*\"}[1m]))",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">NET RX</p><p class=\"sxt-num sxt-num--md sxt-fmt-bytes\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-bytes').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}var mb=n/1048576;el.textContent=(mb &gt;= 1)?(mb.toFixed(1)+' MB/s'):((n/1024).toFixed(0)+' KB/s');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "Network TX",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 16,
+            "y": 5,
+            "w": 4,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "sum(rate(node_network_transmit_bytes_total{instance=\"sxt-validator-host\",device=~\"enp.*\"}[1m]))",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">NET TX</p><p class=\"sxt-num sxt-num--md sxt-fmt-bytes\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-bytes').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}var mb=n/1048576;el.textContent=(mb &gt;= 1)?(mb.toFixed(1)+' MB/s'):((n/1024).toFixed(0)+' KB/s');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
         },
         {
           "title": "Uptime",
-          "type": "stat",
+          "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 3,
-            "w": 3,
-            "x": 18,
-            "y": 1
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "dtdurations",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "none",
-            "colorMode": "value",
-            "textMode": "value"
+            "x": 20,
+            "y": 5,
+            "w": 4,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "time() - node_boot_time_seconds{job=\"node-exporter\"}",
-              "legendFormat": ""
+              "expr": "(time() - node_boot_time_seconds{instance=\"sxt-validator-host\"})",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
-        },
-        {
-          "title": "Load avg (1m)",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 3,
-            "w": 3,
-            "x": 21,
-            "y": 1
-          },
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 2,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
+              "decimals": 0
+            },
+            "overrides": []
           },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">UPTIME</p><p class=\"sxt-num sxt-num--md sxt-fmt-uptime\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-uptime').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}var d=Math.floor(n/86400),h=Math.floor((n%86400)/3600),m=Math.floor((n%3600)/60);el.textContent=(d &gt; 0?d+'d ':'')+h+'h '+m+'m';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
             },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "CPU cores",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 0,
+            "y": 9,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "node_load1{job=\"node-exporter\"}",
-              "legendFormat": ""
+              "expr": "count(count(node_cpu_seconds_total{instance=\"sxt-validator-host\"}) by (cpu))",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU CORES</p><p class=\"sxt-num sxt-num--md\">{{value}}</p></div><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
         },
         {
-          "title": "DB cache",
-          "type": "stat",
+          "title": "RAM total",
+          "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 3,
-            "w": 3,
+            "x": 6,
+            "y": 9,
+            "w": 6,
+            "h": 4
+          },
+          "targets": [
+            {
+              "expr": "node_memory_MemTotal_bytes{instance=\"sxt-validator-host\"} / 1073741824",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">RAM TOTAL</p><p class=\"sxt-num sxt-num--md sxt-fmt-gb\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-gb').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US')+' GB';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
+        },
+        {
+          "title": "Disk total",
+          "type": "marcusolsson-dynamictext-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
             "x": 12,
-            "y": 4
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bytes",
-              "decimals": 1,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "y": 9,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "substrate_database_cache_bytes{job=\"sxt-node\"}",
-              "legendFormat": ""
+              "expr": "node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"} / 1073741824",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
-        },
-        {
-          "title": "State cache",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 3,
-            "w": 3,
-            "x": 15,
-            "y": 4
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bytes",
-              "decimals": 1,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
               }
             }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "expr": "substrate_state_cache_bytes{job=\"sxt-node\"}",
-              "legendFormat": ""
-            }
           ],
-          "transparent": false
-        },
-        {
-          "title": "Ready tx pool",
-          "type": "stat",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 3,
-            "w": 3,
-            "x": 18,
-            "y": 4
-          },
           "fieldConfig": {
             "defaults": {
               "unit": "none",
-              "decimals": 0,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
+              "decimals": 0
+            },
+            "overrides": []
           },
           "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK TOTAL</p><p class=\"sxt-num sxt-num--md sxt-fmt-gb\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-gb').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US')+' GB';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
             },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
-          },
-          "targets": [
-            {
-              "expr": "substrate_ready_transactions_number{job=\"sxt-node\"}",
-              "legendFormat": ""
-            }
-          ],
-          "transparent": false
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
         },
         {
-          "title": "Exporter scrape",
-          "type": "stat",
+          "title": "CPU temp",
+          "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 3,
-            "w": 3,
-            "x": 21,
-            "y": 4
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "s",
-              "decimals": 3,
-              "color": {
-                "fixedColor": "#6F4D80",
-                "mode": "fixed"
-              }
-            }
-          },
-          "options": {
-            "reduceOptions": {
-              "calcs": [
-                "lastNotNull"
-              ]
-            },
-            "graphMode": "area",
-            "colorMode": "value",
-            "textMode": "value"
+            "x": 18,
+            "y": 9,
+            "w": 6,
+            "h": 4
           },
           "targets": [
             {
-              "expr": "sxt_exporter_scrape_duration_seconds",
-              "legendFormat": ""
+              "expr": "avg(node_hwmon_temp_celsius{instance=\"sxt-validator-host\"})",
+              "refId": "A",
+              "legendFormat": "",
+              "format": "time_series",
+              "instant": true,
+              "range": false
             }
           ],
-          "transparent": false
+          "transformations": [
+            {
+              "id": "renameByRegex",
+              "options": {
+                "regex": "^(?!Time$).*",
+                "renamePattern": "value"
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU TEMP</p><p class=\"sxt-num sxt-num--md sxt-fmt-temp\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-temp').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(0)+' \u00b0C';el.style.color=(n &lt; 70)?'#E6E6E6':((n &lt; 85)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "defaultContent": "",
+            "everyRow": true,
+            "renderMode": "everyRow",
+            "wrap": true,
+            "editors": [
+              "text",
+              "styles"
+            ],
+            "externalStyles": [],
+            "helpers": "",
+            "javascript": {
+              "afterRender": "",
+              "beforeRender": ""
+            },
+            "status": {
+              "handler": "",
+              "thresholds": []
+            },
+            "styles": "",
+            "contentPartials": []
+          }
         },
         {
           "title": "CPU over time",
-          "type": "timeseries",
+          "type": "volkovlabs-echarts-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 8,
-            "w": 8,
             "x": 0,
-            "y": 7
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "percentunit",
-              "min": 0,
-              "max": 1,
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 20,
-                "showPoints": "never"
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "CPU %"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
-            }
+            "y": 13,
+            "w": 8,
+            "h": 8
           },
           "targets": [
             {
-              "expr": "1 - avg(rate(node_cpu_seconds_total{mode=\"idle\",job=\"node-exporter\"}[5m]))",
-              "legendFormat": "CPU %"
+              "expr": "(sum by (mode) (rate(node_cpu_seconds_total{instance=\"sxt-validator-host\",mode!=\"idle\"}[1m])) / scalar(count(count(node_cpu_seconds_total{instance=\"sxt-validator-host\"}) by (cpu)))) * 100",
+              "refId": "A",
+              "legendFormat": "{{mode}}",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             }
           ],
-          "transparent": false
+          "description": "CPU time by mode (user, system, iowait, etc), normalized by core count.",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#8A2BE2\",\"#FF6A00\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.config && numField.config.displayNameFromDS) || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({ name: lbl, type: \"line\", smooth: true, showSymbol: false,\n    lineStyle: { width: 1.8, color: color }, itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } }, data: points });\n});\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 60, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 } },\n  tooltip: {\n    trigger: \"axis\",\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\" },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    valueFormatter: (v) => Number(v).toLocaleString(\"en-US\", { maximumFractionDigits: 2 }) + \" %\"\n  },\n  xAxis: { type: \"time\",\n    axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true,\n    axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => Number(v).toFixed(0) + \" %\" },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "renderer": "canvas",
+            "themeEditor": {
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "codeOptions": {},
+              "dataset": [],
+              "series": []
+            },
+            "editor": {
+              "format": "auto",
+              "height": 600
+            },
+            "map": ""
+          }
         },
         {
           "title": "Memory over time",
-          "type": "timeseries",
+          "type": "volkovlabs-echarts-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 8,
-            "w": 8,
             "x": 8,
-            "y": 7
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bytes",
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 15,
-                "showPoints": "never"
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Total"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Used"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
-            }
+            "y": 13,
+            "w": 8,
+            "h": 8
           },
           "targets": [
             {
-              "expr": "node_memory_MemTotal_bytes{job=\"node-exporter\"}",
-              "legendFormat": "Total"
+              "expr": "(node_memory_MemTotal_bytes{instance=\"sxt-validator-host\"} - node_memory_MemAvailable_bytes{instance=\"sxt-validator-host\"}) / 1073741824",
+              "refId": "A",
+              "legendFormat": "Used",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             },
             {
-              "expr": "node_memory_MemTotal_bytes{job=\"node-exporter\"} - node_memory_MemAvailable_bytes{job=\"node-exporter\"}",
-              "legendFormat": "Used"
+              "expr": "node_memory_Cached_bytes{instance=\"sxt-validator-host\"} / 1073741824",
+              "refId": "B",
+              "legendFormat": "Cached",
+              "format": "time_series",
+              "instant": false,
+              "range": true
+            },
+            {
+              "expr": "node_memory_Buffers_bytes{instance=\"sxt-validator-host\"} / 1073741824",
+              "refId": "C",
+              "legendFormat": "Buffers",
+              "format": "time_series",
+              "instant": false,
+              "range": true
+            },
+            {
+              "expr": "node_memory_MemFree_bytes{instance=\"sxt-validator-host\"} / 1073741824",
+              "refId": "D",
+              "legendFormat": "Free",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             }
           ],
-          "transparent": false
+          "description": "Memory breakdown in GB.",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "getOption": "\nconst palette = [\"#CC0AAC\",\"#5000BF\",\"#8A2BE2\",\"#4CAF50\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.config && numField.config.displayNameFromDS) || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({ name: lbl, type: \"line\", smooth: true, showSymbol: false,\n    lineStyle: { width: 1.8, color: color }, itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } }, data: points });\n});\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 60, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 } },\n  tooltip: {\n    trigger: \"axis\",\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\" },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    valueFormatter: (v) => Number(v).toLocaleString(\"en-US\", { maximumFractionDigits: 2 }) + \" GB\"\n  },\n  xAxis: { type: \"time\",\n    axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true,\n    axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => Number(v).toFixed(0) + \" GB\" },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "renderer": "canvas",
+            "themeEditor": {
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "codeOptions": {},
+              "dataset": [],
+              "series": []
+            },
+            "editor": {
+              "format": "auto",
+              "height": 600
+            },
+            "map": ""
+          }
+        },
+        {
+          "title": "Load average",
+          "type": "volkovlabs-echarts-panel",
+          "datasource": "Prometheus",
+          "gridPos": {
+            "x": 16,
+            "y": 13,
+            "w": 8,
+            "h": 8
+          },
+          "targets": [
+            {
+              "expr": "node_load1{instance=\"sxt-validator-host\"}",
+              "refId": "A",
+              "legendFormat": "1m",
+              "format": "time_series",
+              "instant": false,
+              "range": true
+            },
+            {
+              "expr": "node_load5{instance=\"sxt-validator-host\"}",
+              "refId": "B",
+              "legendFormat": "5m",
+              "format": "time_series",
+              "instant": false,
+              "range": true
+            },
+            {
+              "expr": "node_load15{instance=\"sxt-validator-host\"}",
+              "refId": "C",
+              "legendFormat": "15m",
+              "format": "time_series",
+              "instant": false,
+              "range": true
+            }
+          ],
+          "description": "System load averaged over 1 / 5 / 15 minutes.",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "getOption": "\nconst palette = [\"#CC0AAC\",\"#5000BF\",\"#8A2BE2\",\"#9370DB\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.config && numField.config.displayNameFromDS) || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({ name: lbl, type: \"line\", smooth: true, showSymbol: false,\n    lineStyle: { width: 1.8, color: color }, itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } }, data: points });\n});\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 60, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 } },\n  tooltip: {\n    trigger: \"axis\",\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\" },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    valueFormatter: (v) => Number(v).toLocaleString(\"en-US\", { maximumFractionDigits: 2 }) + \"\"\n  },\n  xAxis: { type: \"time\",\n    axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true,\n    axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => Number(v).toFixed(2) },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "renderer": "canvas",
+            "themeEditor": {
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "codeOptions": {},
+              "dataset": [],
+              "series": []
+            },
+            "editor": {
+              "format": "auto",
+              "height": 600
+            },
+            "map": ""
+          }
         },
         {
           "title": "Disk I/O",
-          "type": "timeseries",
+          "type": "volkovlabs-echarts-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 8,
-            "w": 8,
-            "x": 16,
-            "y": 7
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "Bps",
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 15,
-                "showPoints": "never"
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Read {{device}}"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "Write {{device}}"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
-            }
-          },
-          "targets": [
-            {
-              "expr": "rate(node_disk_read_bytes_total{job=\"node-exporter\"}[5m])",
-              "legendFormat": "Read {{device}}"
-            },
-            {
-              "expr": "rate(node_disk_written_bytes_total{job=\"node-exporter\"}[5m])",
-              "legendFormat": "Write {{device}}"
-            }
-          ],
-          "transparent": false
-        },
-        {
-          "title": "Host network I/O",
-          "type": "timeseries",
-          "datasource": "Prometheus",
-          "gridPos": {
-            "h": 8,
-            "w": 12,
             "x": 0,
-            "y": 15
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "Bps",
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 15,
-                "showPoints": "never"
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "RX {{device}}"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "TX {{device}}"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
-            }
+            "y": 21,
+            "w": 12,
+            "h": 8
           },
           "targets": [
             {
-              "expr": "rate(node_network_receive_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\",job=\"node-exporter\"}[5m])",
-              "legendFormat": "RX {{device}}"
+              "expr": "rate(node_disk_read_bytes_total{instance=\"sxt-validator-host\",device=~\"md[34]\"}[1m])",
+              "refId": "A",
+              "legendFormat": "{{device}} read",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             },
             {
-              "expr": "rate(node_network_transmit_bytes_total{device!~\"lo|veth.*|docker.*|br-.*\",job=\"node-exporter\"}[5m])",
-              "legendFormat": "TX {{device}}"
+              "expr": "rate(node_disk_written_bytes_total{instance=\"sxt-validator-host\",device=~\"md[34]\"}[1m])",
+              "refId": "B",
+              "legendFormat": "{{device}} write",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             }
           ],
-          "transparent": false
+          "description": "Read/write throughput per RAID device (md3 = root, md4 = /sxt-data).",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#8A2BE2\",\"#FF6A00\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.config && numField.config.displayNameFromDS) || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({ name: lbl, type: \"line\", smooth: true, showSymbol: false,\n    lineStyle: { width: 1.8, color: color }, itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } }, data: points });\n});\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 60, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 } },\n  tooltip: {\n    trigger: \"axis\",\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\" },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    valueFormatter: (v) => Number(v).toLocaleString(\"en-US\", { maximumFractionDigits: 2 }) + \" MB/s\"\n  },\n  xAxis: { type: \"time\",\n    axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true,\n    axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => (v/1048576).toFixed(0) + \" MB/s\" },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "renderer": "canvas",
+            "themeEditor": {
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "codeOptions": {},
+              "dataset": [],
+              "series": []
+            },
+            "editor": {
+              "format": "auto",
+              "height": 600
+            },
+            "map": ""
+          }
         },
         {
-          "title": "DB + state cache over time",
-          "type": "timeseries",
+          "title": "Network I/O",
+          "type": "volkovlabs-echarts-panel",
           "datasource": "Prometheus",
           "gridPos": {
-            "h": 8,
-            "w": 12,
             "x": 12,
-            "y": 15
-          },
-          "fieldConfig": {
-            "defaults": {
-              "unit": "bytes",
-              "custom": {
-                "lineWidth": 1,
-                "fillOpacity": 10,
-                "showPoints": "never"
-              }
-            },
-            "overrides": [
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "DB cache"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#5000BF",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              },
-              {
-                "matcher": {
-                  "id": "byName",
-                  "options": "State cache"
-                },
-                "properties": [
-                  {
-                    "id": "color",
-                    "value": {
-                      "fixedColor": "#CC0AAC",
-                      "mode": "fixed"
-                    }
-                  }
-                ]
-              }
-            ]
-          },
-          "options": {
-            "legend": {
-              "displayMode": "list",
-              "placement": "bottom"
-            },
-            "tooltip": {
-              "mode": "multi"
-            }
+            "y": 21,
+            "w": 12,
+            "h": 8
           },
           "targets": [
             {
-              "expr": "substrate_database_cache_bytes{job=\"sxt-node\"}",
-              "legendFormat": "DB cache"
+              "expr": "rate(node_network_receive_bytes_total{instance=\"sxt-validator-host\",device=~\"enp.*\"}[1m])",
+              "refId": "A",
+              "legendFormat": "{{device}} RX",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             },
             {
-              "expr": "substrate_state_cache_bytes{job=\"sxt-node\"}",
-              "legendFormat": "State cache"
+              "expr": "rate(node_network_transmit_bytes_total{instance=\"sxt-validator-host\",device=~\"enp.*\"}[1m])",
+              "refId": "B",
+              "legendFormat": "{{device}} TX",
+              "format": "time_series",
+              "instant": false,
+              "range": true
             }
           ],
-          "transparent": false
+          "description": "RX/TX bandwidth per physical NIC.",
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#8A2BE2\",\"#FF6A00\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.config && numField.config.displayNameFromDS) || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({ name: lbl, type: \"line\", smooth: true, showSymbol: false,\n    lineStyle: { width: 1.8, color: color }, itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } }, data: points });\n});\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 60, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 } },\n  tooltip: {\n    trigger: \"axis\",\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\" },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    valueFormatter: (v) => Number(v).toLocaleString(\"en-US\", { maximumFractionDigits: 2 }) + \" MB/s\"\n  },\n  xAxis: { type: \"time\",\n    axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true,\n    axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => (v/1048576).toFixed(1) + \" MB/s\" },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "renderer": "canvas",
+            "themeEditor": {
+              "name": "default"
+            },
+            "visualEditor": {
+              "code": "",
+              "codeOptions": {},
+              "dataset": [],
+              "series": []
+            },
+            "editor": {
+              "format": "auto",
+              "height": 600
+            },
+            "map": ""
+          }
         }
       ],
       "description": "Hardware and OS resources of the VPS hosting the node: CPU, RAM, disk, I/O, network."
