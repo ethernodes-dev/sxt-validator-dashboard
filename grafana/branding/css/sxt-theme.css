@@ -91,7 +91,7 @@
     #5000BF 0%,
     #9700C7 15%,
     #CC0AAC 35%,
-    #FF00D5 55%,
+    #CC0AAC 55%,
     #F373FF 75%,
     #99CCFF 100%
   );
@@ -100,7 +100,7 @@
     90deg,
     #5000BF 0%,
     #CC0AAC 50%,
-    #FF00D5 100%
+    #CC0AAC 100%
   );
   /* Subtle variant for backgrounds of standard cards */
   --sxt-gradient-subtle: linear-gradient(
