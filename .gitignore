@@ -6,3 +6,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .env.backup.*
+
+# Backups from in-session resilience patches
+exporter/.bak/

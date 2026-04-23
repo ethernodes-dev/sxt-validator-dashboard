@@ -15,7 +15,7 @@
     "to": "now"
   },
   "schemaVersion": 41,
-  "version": 77,
+  "version": 79,
   "style": "dark",
   "panels": [
     {
@@ -1805,9 +1805,9 @@
         },
         {
           "type": "volkovlabs-echarts-panel",
-          "title": "Delegation changes",
+          "title": "Network stake changes per era",
           "datasource": "ClickHouse",
-          "description": "Per-era nominator flows: inflows (new delegations), outflows (undelegations), net change.\n\nSource: sxt.v_delegation_changes (ClickHouse view)\nUseful for tracking user trust trends in the staking pool.",
+          "description": "Per-era change in total network stake (sum across all validators).\n\nSource: sxt.v_delegation_changes (ClickHouse view, derived from delegation_snapshots). Computed as delta of sum(total_stake) between consecutive eras.\n\nNote: this is the NET aggregate change. Internal redistributions among validators (A loses 1k SXT, B gains 1k SXT) cancel out at this level \u2014 this panel reflects new stake entering or leaving the protocol as a whole, not churn between validators.",
           "gridPos": {
             "x": 0,
             "y": 45,

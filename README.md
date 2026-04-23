@@ -108,6 +108,64 @@ Default login: `admin` / (password you set in `.env`)
 
 First data appears within ~2 minutes. Economic data (earnings, delegation history) populates on the first staking deep scrape. ClickHouse historical data accumulates over time — the longer the stack runs, the richer the charts.
 
+
+## Initial historical backfill
+
+**Recommended for new deployments.** When the stack first starts, Prometheus begins
+collecting real-time metrics immediately, but historical charts (era rewards,
+delegation flows, stake evolution) are empty until the exporter has run through
+several era changes — which takes days or weeks.
+
+To populate historical data on day one, run the backfill script once:
+
+```bash
+docker compose exec sxt-exporter python3 /app/scripts/backfill.py all
+```
+
+This fetches up to the last **80 eras** (~80 days on SXT mainnet) of validator
+stake, commission, points, and reward data directly from the SXT archive RPC
+and writes it to ClickHouse. The dashboard will show full history immediately
+after completion.
+
+Typical runtime: **15–25 minutes** for a full backfill of 80 eras.
+
+### Options
+
+```bash
+# Dry run — preview what would be backfilled without writing
+docker compose exec sxt-exporter python3 /app/scripts/backfill.py all --dry-run
+
+# Only stake/delegation data (faster, ~5 minutes)
+docker compose exec sxt-exporter python3 /app/scripts/backfill.py stake
+
+# Only reward/commission data (assumes stake rows already exist)
+docker compose exec sxt-exporter python3 /app/scripts/backfill.py rewards
+
+# Custom era range
+docker compose exec sxt-exporter python3 /app/scripts/backfill.py all --from 300 --to 350
+
+# Lower max eras to respect the public RPC more
+docker compose exec sxt-exporter python3 /app/scripts/backfill.py all --max-eras 40
+```
+
+### RPC endpoint
+
+By default the script uses the public SXT archive at `https://rpc.mainnet.sxt.network`.
+This endpoint is load-balanced across multiple backends with some inconsistency
+in historical state availability — the script automatically retries each query
+up to 20 times. Eras older than ~82 eras from current may return "no stake data"
+because they are outside the public archive's retention window.
+
+If you run your own archive node, set `SXT_BACKFILL_RPC` to point at it:
+
+```bash
+docker compose exec -e SXT_BACKFILL_RPC=http://your-archive:9944 \
+    sxt-exporter python3 /app/scripts/backfill.py all
+```
+
+The backfill is **idempotent** — re-running it will only insert rows for eras
+that are not already present. Safe to run multiple times.
+
 ---
 
 ## Configuration
@@ -250,6 +308,8 @@ docker volume rm sxt-validator-dashboard_grafana-data
 ```
 
 **Validator not in dropdown**: The dropdown populates from on-chain data. If a validator is missing, wait for the next staking deep scrape (~120s) or check the [SXT Staking Dashboard](https://staking.spaceandtime.io/).
+
+**Historical charts empty after install**: Run the [initial historical backfill](#initial-historical-backfill) to populate up to 80 days of data. Otherwise charts will fill in organically as the exporter runs through era changes.
 
 ---
 

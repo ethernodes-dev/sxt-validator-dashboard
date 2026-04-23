@@ -39,7 +39,9 @@ services:
   # Polls RPC for metrics not in native Prometheus endpoint
   # -----------------------------------------------------------
   sxt-exporter:
-    build: ./exporter
+    build:
+      context: .
+      dockerfile: exporter/Dockerfile
     container_name: sxt-exporter
     restart: unless-stopped
     environment:
