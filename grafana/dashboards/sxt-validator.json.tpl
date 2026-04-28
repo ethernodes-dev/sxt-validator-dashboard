@@ -3589,7 +3589,7 @@
           },
           "targets": [
             {
-              "expr": "(1 - (node_filesystem_avail_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"} / node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"})) * 100",
+              "expr": "(1 - (node_filesystem_avail_bytes{instance=\"sxt-validator-host\",mountpoint=\"$disk_mount\"} / node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"$disk_mount\"})) * 100",
               "refId": "A",
               "legendFormat": "",
               "format": "time_series",
@@ -3894,7 +3894,7 @@
           },
           "targets": [
             {
-              "expr": "(1 - (node_filesystem_avail_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"} / node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"})) * 100",
+              "expr": "(1 - (node_filesystem_avail_bytes{instance=\"sxt-validator-host\",mountpoint=\"$disk_mount\"} / node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"$disk_mount\"})) * 100",
               "refId": "A",
               "legendFormat": "",
               "format": "time_series",
@@ -4260,7 +4260,7 @@
           },
           "targets": [
             {
-              "expr": "node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"/sxt-data\"} / 1073741824",
+              "expr": "node_filesystem_size_bytes{instance=\"sxt-validator-host\",mountpoint=\"$disk_mount\"} / 1073741824",
               "refId": "A",
               "legendFormat": "",
               "format": "time_series",
@@ -4671,10 +4671,10 @@
       {
         "name": "disk_mount",
         "type": "custom",
-        "query": "/sxt-data",
+        "query": "__SXT_DATA_MOUNTPOINT__",
         "current": {
-          "text": "/sxt-data",
-          "value": "/sxt-data"
+          "text": "__SXT_DATA_MOUNTPOINT__",
+          "value": "__SXT_DATA_MOUNTPOINT__"
         },
         "hide": 2,
         "description": "Mountpoint for disk usage gauge \u2014 override in dashboard settings"
@@ -4713,18 +4713,18 @@
         "type": "constant",
         "label": null,
         "hide": 2,
-        "query": "Ethernodes",
+        "query": "__SXT_LOCAL_VALIDATOR__",
         "skipUrlSync": true,
         "current": {
           "selected": false,
-          "text": "Ethernodes",
-          "value": "Ethernodes"
+          "text": "__SXT_LOCAL_VALIDATOR__",
+          "value": "__SXT_LOCAL_VALIDATOR__"
         },
         "options": [
           {
             "selected": true,
-            "text": "Ethernodes",
-            "value": "Ethernodes"
+            "text": "__SXT_LOCAL_VALIDATOR__",
+            "value": "__SXT_LOCAL_VALIDATOR__"
           }
         ]
       }

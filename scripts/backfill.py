@@ -215,9 +215,25 @@ def get_block_hash_for_era(sub_ref: list, era: int, current_block: int,
 # Range resolution
 # ---------------------------------------------------------------------------
 def resolve_range(sub_ref: list, mode: str, args_from: Optional[int],
-                  args_to: Optional[int], max_eras: int) -> Tuple[int, int, int, int]:
+                  args_to: Optional[int], max_eras: int,
+                  force: bool = False) -> Tuple[int, int, int, int]:
     """Determine (from_era, to_era, current_block, current_era) respecting
-    the 100-era cap and existing ClickHouse data."""
+    the max_eras cap and existing ClickHouse data.
+
+    Auto-detect logic (when --from/--to are not given):
+      - to_era   = current_era - 1   (active era is in progress, skip it)
+      - from_era = current_era - max_eras  by default
+
+    For mode='all' we now look at BOTH tables and start from the smaller
+    of the two MAX(era) values (i.e. the table that is most behind).
+    Previously we only checked one table; this caused the script to do
+    nothing when the live exporter had already inserted a single row
+    into delegation_snapshots while era_rewards was still empty.
+
+    With --force, the existing data is ignored entirely and we always
+    start from current_era - max_eras.  Re-inserting is harmless because
+    both tables are ReplacingMergeTree (deduplication on FINAL/argMax).
+    """
     current_header = sub_ref[0].get_block_header()
     current_block = current_header["header"]["number"]
     head_hash = query_retry(sub_ref, "get_block_hash", current_block)
@@ -232,23 +248,43 @@ def resolve_range(sub_ref: list, mode: str, args_from: Optional[int],
     if args_from is not None and args_to is not None:
         from_era = args_from
         to_era = args_to
+    elif force:
+        from_era = current_era - max_eras
+        log.info("Force mode: ignoring existing CH data, starting at era %d",
+                 from_era)
     else:
-        # Auto-detect: start one era after the latest already-present era,
-        # but never more than max_eras back from current.
-        existing = ch_existing_eras("sxt.delegation_snapshots") if mode != "rewards" \
-                   else ch_existing_eras("sxt.era_rewards")
-        if existing:
-            from_era = max(existing) + 1
+        # Auto-detect: start at the era *after* the latest era for which BOTH
+        # required tables already have data.  If either table is empty (or
+        # not relevant for this mode), we treat that table's "max known era"
+        # as -inf so it does not constrain us.
+        relevant = []
+        if mode in ("all", "stake"):
+            relevant.append(ch_existing_eras("sxt.delegation_snapshots"))
+        if mode in ("all", "rewards"):
+            relevant.append(ch_existing_eras("sxt.era_rewards"))
+
+        # All required tables must have at least one row to "shortcut".
+        if relevant and all(s for s in relevant):
+            # Smallest MAX(era) across required tables drives the resume point.
+            max_per_table = [max(s) for s in relevant]
+            resume_from = min(max_per_table) + 1
+            log.info("Existing eras per table (min max): %s -> resume at %d",
+                     max_per_table, resume_from)
+            from_era = resume_from
         else:
             from_era = current_era - max_eras
+            log.info("At least one required table is empty -> "
+                     "full backfill from era %d", from_era)
 
-        # Enforce the cap
+        # Enforce the cap regardless of how from_era was chosen.
         from_era = max(from_era, current_era - max_eras)
         from_era = max(from_era, 1)
 
     if from_era > to_era:
         log.info("Nothing to backfill: from=%d > to=%d (already up to date?)",
                  from_era, to_era)
+        log.info("If you want to re-process the last %d eras anyway, "
+                 "re-run with --force.", max_eras)
         return (from_era, to_era, current_block, current_era)
 
     span = to_era - from_era + 1
@@ -538,6 +574,11 @@ def main():
     parser.add_argument("--max-eras", type=int, default=DEFAULT_MAX_ERAS,
                         help=f"Hard cap on span. Default: {DEFAULT_MAX_ERAS}.")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--force", action="store_true",
+                        help="Ignore existing CH data and backfill the full "
+                             "max_eras window from current_era - max_eras up "
+                             "to current_era - 1.  Re-inserts are harmless "
+                             "because both target tables are ReplacingMergeTree.")
     args = parser.parse_args()
 
     if args.max_eras > ABSOLUTE_MAX_ERAS:
@@ -558,7 +599,8 @@ def main():
 
     try:
         from_era, to_era, current_block, current_era = resolve_range(
-            sub_ref, args.mode, args.from_era, args.to_era, args.max_eras
+            sub_ref, args.mode, args.from_era, args.to_era, args.max_eras,
+            force=args.force,
         )
     except Exception as e:
         log.error("Range resolution failed: %s", e)

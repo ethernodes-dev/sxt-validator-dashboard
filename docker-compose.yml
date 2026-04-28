@@ -1,48 +1,73 @@
 #===============================================================================
 # SXT Validator Dashboard - Docker Compose
 #
-# Usage:
-#   cp .env.example .env     # adjust values
-#   docker compose up -d     # launch stack
-#   open http://localhost:3000  (Grafana)
+# Lifecycle:
+#   ./install.sh                     (first time — generates .env)
+#   ./start.sh up                    (subsequent runs)
+#
+# The COMPOSE_PROJECT_NAME env var (set in .env) prefixes container,
+# volume and network names.  Change it if you want to run more than
+# one instance on the same host.
 #===============================================================================
 
 services:
   # -----------------------------------------------------------
   # ClickHouse — historical economic data
+  # Two users provisioned via clickhouse/init.sql:
+  #   sxt_exporter — INSERT + SELECT (used by exporter/backfill)
+  #   sxt_dashboard — SELECT only, readonly=1 (used by Grafana)
   # -----------------------------------------------------------
   clickhouse:
     image: clickhouse/clickhouse-server:24.8-alpine
-    container_name: sxt-clickhouse
+    container_name: ${COMPOSE_PROJECT_NAME:-sxt-validator-dashboard}-clickhouse
     restart: unless-stopped
     environment:
       CLICKHOUSE_DB: sxt
+      # access_management=1 on the user created by the entrypoint is
+      # required so that init.sql can CREATE SETTINGS PROFILE /
+      # CREATE USER for the read-only sxt_dashboard user.
+      #
+      # IMPORTANT: the env var the official entrypoint reads is
+      # CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT (NOT CLICKHOUSE_ACCESS_MANAGEMENT).
+      # See https://github.com/ClickHouse/ClickHouse/blob/master/docker/server/entrypoint.sh
+      # The CLICKHOUSE_ACCESS_MANAGEMENT internal var defaults to
+      # ${CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT:-0}, so any other name
+      # is silently ignored.
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
       CLICKHOUSE_USER: ${CLICKHOUSE_USER:-sxt_exporter}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:?CLICKHOUSE_PASSWORD must be set in .env}
     volumes:
       - clickhouse-data:/var/lib/clickhouse
+      # The init.sql is rendered from init.sql.tpl by start.sh
+      # before mount.  It runs ONCE on a fresh volume.
       - ./clickhouse/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "127.0.0.1:8123:8123"
-      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:${CLICKHOUSE_HTTP_PORT:-8123}:8123"
+      - "127.0.0.1:${CLICKHOUSE_NATIVE_PORT:-9000}:9000"
     healthcheck:
-      test: ["CMD", "clickhouse-client", "--user", "${CLICKHOUSE_USER:-sxt_exporter}", "--password", "${CLICKHOUSE_PASSWORD:-}", "--query", "SELECT 1"]
+      test: ["CMD", "clickhouse-client", "--user", "${CLICKHOUSE_USER:-sxt_exporter}", "--password", "${CLICKHOUSE_PASSWORD}", "--query", "SELECT 1"]
       interval: 15s
       timeout: 5s
       retries: 3
+    mem_limit: 4g
+    pids_limit: 4096
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
     networks:
       - sxt-monitor
 
   # -----------------------------------------------------------
   # Custom SXT exporter (Python)
-  # Polls RPC for metrics not in native Prometheus endpoint
+  # Polls RPC for metrics not in native :9615 endpoint and writes
+  # historical data to ClickHouse via the sxt_exporter user.
   # -----------------------------------------------------------
   sxt-exporter:
     build:
       context: .
       dockerfile: exporter/Dockerfile
-    container_name: sxt-exporter
+    container_name: ${COMPOSE_PROJECT_NAME:-sxt-validator-dashboard}-exporter
     restart: unless-stopped
     environment:
       SXT_RPC_URL: ${SXT_RPC_URL:-http://172.17.0.1:9944}
@@ -55,76 +80,87 @@ services:
       SXT_CLICKHOUSE_PORT: "8123"
       SXT_CLICKHOUSE_DB: sxt
       SXT_CLICKHOUSE_USER: ${CLICKHOUSE_USER:-sxt_exporter}
-      SXT_CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      SXT_CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
       SXT_CLICKHOUSE_ENABLED: "true"
     ports:
       - "127.0.0.1:${SXT_EXPORTER_PORT:-9101}:${SXT_EXPORTER_PORT:-9101}"
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:${SXT_EXPORTER_PORT:-9101}/health')"]
+      test: ["CMD", "python", "-c", "import urllib.request,sys; urllib.request.urlopen('http://localhost:${SXT_EXPORTER_PORT:-9101}/health', timeout=3)"]
       interval: 30s
       timeout: 5s
       retries: 3
     depends_on:
       clickhouse:
         condition: service_healthy
+    mem_limit: 1g
+    pids_limit: 256
     networks:
       - sxt-monitor
 
   # -----------------------------------------------------------
   # Prometheus
-  # Scrapes: native substrate (:9615), exporter (:9101),
-  #          node_exporter (:9100)
   # -----------------------------------------------------------
   prometheus:
-    image: prom/prometheus:v2.53.0
-    container_name: sxt-prometheus
+    image: prom/prometheus:v2.55.1
+    container_name: ${COMPOSE_PROJECT_NAME:-sxt-validator-dashboard}-prometheus
     restart: unless-stopped
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
       - '--storage.tsdb.retention.time=${PROMETHEUS_RETENTION:-30d}'
-      - '--web.listen-address=:${PROMETHEUS_PORT:-9090}'
+      - '--web.listen-address=:9090'
       - '--web.enable-lifecycle'
     volumes:
-      - ./prometheus/prometheus.rendered.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus-data:/prometheus
     ports:
-      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:${PROMETHEUS_PORT:-9090}"
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
       sxt-exporter:
         condition: service_healthy
+    mem_limit: 2g
+    pids_limit: 1024
     networks:
       - sxt-monitor
 
   # -----------------------------------------------------------
   # Grafana
-  # Auto-provisioned datasources + dashboards
+  # Auto-provisioned datasources + dashboards.
+  # Connects to ClickHouse with the read-only sxt_dashboard user.
   # -----------------------------------------------------------
   grafana:
     image: grafana/grafana:12.3.2
-    container_name: sxt-grafana
+    container_name: ${COMPOSE_PROJECT_NAME:-sxt-validator-dashboard}-grafana
     restart: unless-stopped
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:-admin}
-      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-changeme}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD must be set in .env}
       GF_USERS_ALLOW_SIGN_UP: "false"
       GF_SERVER_ROOT_URL: "http://localhost:${GRAFANA_PORT:-3000}"
-      # Plugins: ClickHouse datasource + Business Suite (Volkov Labs)
-      GF_INSTALL_PLUGINS: "grafana-clickhouse-datasource,volkovlabs-echarts-panel,volkovlabs-table-panel,marcusolsson-dynamictext-panel"
+      # Plugins are pinned to known-good versions.
+      # Plugin pins.  Versions confirmed live in CSM Monitor production
+      # as of 2026-04.  GF_INSTALL_PLUGINS is deprecated since Grafana
+      # 11.5; the new env var is GF_PLUGINS_PREINSTALL_SYNC, which also
+      # blocks startup until plugins are present (no race with provisioning).
+      GF_PLUGINS_PREINSTALL_SYNC: "grafana-clickhouse-datasource@4.10.2,volkovlabs-echarts-panel@7.2.4,volkovlabs-table-panel@3.6.1,marcusolsson-dynamictext-panel@6.2.0"
+      # The dashboard relies on inline HTML in dynamic-text panels
+      # (number formatting, status pills).  Sanitization MUST stay
+      # disabled.  See README "Security considerations" — dashboards
+      # are provisioned read-only so the trust boundary is OK.
       GF_PANELS_DISABLE_SANITIZE_HTML: "true"
-      # Force locale so Grafana's 'locale' unit formats with en-US (commas for thousands)
       LANG: "en_US.UTF-8"
       LC_ALL: "en_US.UTF-8"
-      CLICKHOUSE_USER: ${CLICKHOUSE_USER:-sxt_exporter}
-      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-}
+      # Read-only ClickHouse credentials consumed by the datasource
+      # provisioning file (single-$ syntax avoids double expansion
+      # when the password contains a $; per Grafana docs).
+      SXT_DASHBOARD_USER: ${SXT_DASHBOARD_USER:-sxt_dashboard}
+      SXT_DASHBOARD_PASSWORD: ${SXT_DASHBOARD_PASSWORD:?SXT_DASHBOARD_PASSWORD must be set in .env}
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
-      # SXT branding: logos (SVG), fonts (TTF), theme CSS. Served as Grafana static assets.
       - ./grafana/branding:/usr/share/grafana/public/sxt-branding:ro
-      # Override Grafana's index.html to inject theme <link> before </head>
       - ./grafana/branding/overrides/index.html:/usr/share/grafana/public/views/index.html:ro
       - grafana-data:/var/lib/grafana
     ports:
@@ -132,6 +168,8 @@ services:
     depends_on:
       - prometheus
       - clickhouse
+    mem_limit: 1g
+    pids_limit: 1024
     networks:
       - sxt-monitor
 
@@ -142,4 +180,4 @@ volumes:
 
 networks:
   sxt-monitor:
-    name: sxt-monitor
+    name: ${COMPOSE_PROJECT_NAME:-sxt-validator-dashboard}-net
