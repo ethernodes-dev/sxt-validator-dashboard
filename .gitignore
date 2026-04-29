@@ -21,3 +21,5 @@ __pycache__/
 exporter/.bak/
 .patch-backup/
 patch-package-*/
+install.log
+backfill.log
