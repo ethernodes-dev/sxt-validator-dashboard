@@ -1,322 +1,360 @@
 # SXT Validator Dashboard
 
-Full monitoring and economics stack for **Space and Time (SXT Chain)** validator nodes. Built with Prometheus, ClickHouse, Grafana, and a custom Python exporter that queries the Substrate RPC for deep validator metrics not available from the native Prometheus endpoint.
+A self-hosted, open-source monitoring dashboard for [Space and Time](https://www.spaceandtime.io)
+mainnet validators.  Tracks chain status, network economics, per-validator
+earnings, stake evolution, and host metrics — all in one Grafana page.
 
-Designed for validator operators who want full visibility into their node, the network, staking economics, and operator earnings — all from a single dashboard.
+[IMG]
 
-![SXT](https://img.shields.io/badge/SXT_Chain-Substrate-5000BF) ![License](https://img.shields.io/badge/license-MIT-6F4D80)
-
----
-
-## What it monitors
-
-### Chain status
-Block height (best and finalized), finality lag, sync state, era and epoch progress bars, GRANDPA round, runtime version, pending extrinsics.
-
-### Network economics
-Token price (USD), 24h change, market cap, 24h trading volume, total network stake in USD, network era reward, price history chart, estimated APR per validator, stake distribution (donut chart), stake per validator over time, era rewards history, delegation inflows/outflows per era.
-
-### Operator earnings
-Select any validator from the dropdown to view: estimated APR, total reward generated, commission earned (84-day and monthly), own-stake yield, per-era earnings breakdown (SXT + USD), monthly earnings aggregation, total stake over time.
-
-### Network staking
-Active and waiting validators with names, total stake, era rewards, nominators count, commission, era points. Includes bar charts for stake distribution and a full sortable table of all validators.
-
-### Node performance
-Peer count and role breakdown, BABE block production vs expected average, GRANDPA finality rate, block proposal and import times, network bandwidth, gossip message rates.
-
-### Host resources
-CPU, memory, and disk usage gauges with configurable mountpoint, disk I/O, network I/O, DB and state cache sizes, system uptime, load average.
+Built and maintained by [Ethernodes](https://github.com/talinito).
+For questions, ping `talinito` on Discord.
 
 ---
 
-## Architecture
-```
-┌─────────────────────────┐
-│     SXT Validator        │
-│   :9615 (prometheus)     │───────┐
-│   :9944 (rpc)            │───┐   │
-│   :30333 (p2p)           │   │   │
-└─────────────────────────┘   │   │
-                               │   │
-┌─────────────────────────┐   │   │   ┌──────────────┐   ┌─────────────┐
-│   sxt_exporter (Python)  │◄──┘   ├──►│  Prometheus   │──►│   Grafana    │
-│   :9101                  │───────┘   │  :9090        │   │   :3000     │
-│   + economics module     │──────┐    └──────────────┘   │  + ClickHouse│
-└─────────────────────────┘      │                        │    plugin    │
-                               ┌──┘──────────┐            └─────────────┘
-┌─────────────────────────┐   │              │                   │
-│   node_exporter          │───┘  ┌──────────┴──┐               │
-│   :9100                  │      │  ClickHouse  │◄──────────────┘
-└─────────────────────────┘      │  :8123/:9000 │
-    ┌─────────────────┐          └──────────────┘
-    │  CoinGecko API   │               │
-    │  (token price)   │───────────────┘
-    └─────────────────┘
-```
+## What it shows
 
-### Data sources
+The dashboard groups panels into six rows, each focused on one operational
+concern:
 
-**Prometheus** stores real-time metrics: node health, sync state, peer data, staking snapshots, token price, estimated APR.
-
-**ClickHouse** stores historical data: price history, per-era per-validator rewards, delegation changes, operator earnings breakdowns. Data is retained for 2 years and survives Prometheus retention limits (default 30 days).
-
-**CoinGecko** provides token price, market cap, and 24h volume via the free public API (no API key required). The exporter implements exponential backoff on rate limits.
-
-### What the exporter queries
-
-- `BabeApi_current_epoch` — epoch progress, authority set, slot production
-- `GrandpaApi_grandpa_authorities` — finality authority count
-- `Staking.*` — full validator set, stake, commission, nominators, era points, ledger
-- `Session.Validators` — active validator list
-- `system_peers` — peer roles and block heights
-- Validator names from the [SXT Staking Dashboard API](https://staking.spaceandtime.io/api/validator)
-- Per-era commission and own-stake yield calculation for all validators
-- Dynamic era duration calculation from on-chain session data
-
----
-
-## Prerequisites
-
-- Docker and Docker Compose
-- SXT validator node running with:
-  - `--prometheus-external --prometheus-port 9615`
-  - `--rpc-port 9944`
-  - `--validator`
-- `node_exporter` on the host for hardware metrics (`apt install prometheus-node-exporter`)
+- **Protocol overview** — current era, finalized vs best block height, total
+  network stake, validator counts, RPC health.
+- **Network economics** — SXT price (CoinGecko), total network stake in USD,
+  era reward issuance, historical price chart.
+- **Validators — global stats** — per-validator stake, era points, status
+  (active / waiting), full validator table sortable by every column,
+  estimated APR over time, stake-per-validator over time.
+- **Validator economics** — for the validator the dashboard is configured
+  for: earnings per era, monthly earnings split by commission and own yield,
+  84-day totals, total stake over time.
+- **This validator** — chain-level metrics for *your* node: peers, finality
+  lag, block proposal/import times, network bandwidth.
+- **Host machine** — CPU / RAM / disk / network from `node_exporter` running
+  on the validator host.
 
 ---
 
 ## Quick start
+
+You will need:
+
+- A Linux host with Docker 20.10+ and Docker Compose v2.
+- An SXT validator with the built-in Prometheus exposition enabled.  The
+  SXT node binary is Substrate-based and exposes metrics natively when
+  started with these flags:
+  ```
+  --prometheus-external --prometheus-port 9615
+  ```
+  No separate Prometheus install is needed on the validator host — only
+  `node_exporter` (below) for host-level metrics.
+- `node_exporter` running on that same validator host (default `9100`).
+- ~10 GB free disk for ClickHouse data and 80-day backfill.
+
+Then:
+
 ```bash
 git clone https://github.com/talinito/sxt-validator-dashboard.git
 cd sxt-validator-dashboard
-
-# 1. Configure
-cp .env.example .env
-nano .env   # set your password and data mountpoint
-
-# 2. Launch
-chmod +x start.sh
-./start.sh up
-
-# 3. Open Grafana
-# http://localhost:3000
+./install.sh
 ```
 
-Default login: `admin` / (password you set in `.env`)
+The installer is interactive.  It walks through pre-flight checks, asks for
+your validator name (validated against the live SXT staking API), endpoint
+addresses, host ports (auto-detects collisions), generates strong random
+passwords, lays down `.env` (mode 600), starts the stack, and offers to
+launch the historical backfill in the background.
 
-First data appears within ~2 minutes. Economic data (earnings, delegation history) populates on the first staking deep scrape. ClickHouse historical data accumulates over time — the longer the stack runs, the richer the charts.
-
-
-## Initial historical backfill
-
-**Recommended for new deployments.** When the stack first starts, Prometheus begins
-collecting real-time metrics immediately, but historical charts (era rewards,
-delegation flows, stake evolution) are empty until the exporter has run through
-several era changes — which takes days or weeks.
-
-To populate historical data on day one, run the backfill script once:
-
-```bash
-docker compose exec sxt-exporter python3 /app/scripts/backfill.py all
-```
-
-This fetches up to the last **80 eras** (~80 days on SXT mainnet) of validator
-stake, commission, points, and reward data directly from the SXT archive RPC
-and writes it to ClickHouse. The dashboard will show full history immediately
-after completion.
-
-Typical runtime: **15–25 minutes** for a full backfill of 80 eras.
-
-### Options
-
-```bash
-# Dry run — preview what would be backfilled without writing
-docker compose exec sxt-exporter python3 /app/scripts/backfill.py all --dry-run
-
-# Only stake/delegation data (faster, ~5 minutes)
-docker compose exec sxt-exporter python3 /app/scripts/backfill.py stake
-
-# Only reward/commission data (assumes stake rows already exist)
-docker compose exec sxt-exporter python3 /app/scripts/backfill.py rewards
-
-# Custom era range
-docker compose exec sxt-exporter python3 /app/scripts/backfill.py all --from 300 --to 350
-
-# Lower max eras to respect the public RPC more
-docker compose exec sxt-exporter python3 /app/scripts/backfill.py all --max-eras 40
-```
-
-### RPC endpoint
-
-By default the script uses the public SXT archive at `https://rpc.mainnet.sxt.network`.
-This endpoint is load-balanced across multiple backends with some inconsistency
-in historical state availability — the script automatically retries each query
-up to 20 times. Eras older than ~82 eras from current may return "no stake data"
-because they are outside the public archive's retention window.
-
-If you run your own archive node, set `SXT_BACKFILL_RPC` to point at it:
-
-```bash
-docker compose exec -e SXT_BACKFILL_RPC=http://your-archive:9944 \
-    sxt-exporter python3 /app/scripts/backfill.py all
-```
-
-The backfill is **idempotent** — re-running it will only insert rows for eras
-that are not already present. Safe to run multiple times.
+When it finishes, Grafana is reachable at `http://127.0.0.1:3000` (or the
+port you chose).  See **Deployment topologies** below for how to expose it
+beyond the host.
 
 ---
 
-## Configuration
+## Architecture
 
-All settings are in `.env` — nothing is hardcoded.
+```
+   ┌──────────────────────────┐         ┌─────────────────────────┐
+   │  SXT validator host      │         │  Dashboard host         │
+   │  (your node)             │         │                         │
+   │                          │         │  ┌────────────────────┐ │
+   │  ┌──────────────────┐    │         │  │  sxt-exporter      │ │
+   │  │  SXT node        ├────┼─ 9615 ──┼──┤  (Python)          │ │
+   │  │  --prometheus-   │    │  HTTP   │  │  reads stake,      │ │
+   │  │   external       │    │         │  │  rewards via RPC   │ │
+   │  └──────────────────┘    │         │  └────────┬───────────┘ │
+   │                          │         │           │             │
+   │  ┌──────────────────┐    │         │  ┌────────▼───────────┐ │
+   │  │  node_exporter   ├────┼─ 9100 ──┤  │  Prometheus        │ │
+   │  └──────────────────┘    │  HTTP   │  │  + ClickHouse      │ │
+   └──────────────────────────┘         │  │  (time-series DB)  │ │
+                                        │  └────────┬───────────┘ │
+                                        │           │             │
+                                        │  ┌────────▼───────────┐ │
+                                        │  │  Grafana           │ │
+                                        │  │  (visualization)   │ │
+                                        │  └────────────────────┘ │
+                                        └─────────────────────────┘
+```
 
-| Variable | Default | Description |
+**Two data stores by design:**
+
+- **Prometheus** — all live metrics (15s scrape, 30d retention).
+- **ClickHouse** — long-term historical data (era rewards, stake snapshots,
+  commission totals, price history).  Survives Prometheus retention rotation.
+
+The exporter writes to both: short-term metrics to Prometheus via its
+exposition endpoint, per-era summaries to ClickHouse on era transition.
+
+---
+
+## Deployment topologies
+
+### Topology 1 — Single-host
+
+The validator and the dashboard run on the same machine.  The exporter
+reaches the validator via the Docker bridge gateway (`172.17.0.1`).
+
+`.env` looks like:
+
+```env
+SXT_PROMETHEUS_TARGET=172.17.0.1:9615
+NODE_EXPORTER_TARGET=172.17.0.1:9100
+```
+
+This is the simplest topology, and the installer's defaults assume it.
+
+### Topology 2 — Remote dashboard
+
+The dashboard runs on a separate host from the validator.  The exporter
+scrapes the validator's public IP.
+
+`.env` looks like:
+
+```env
+SXT_PROMETHEUS_TARGET=<validator_public_ip>:9615
+NODE_EXPORTER_TARGET=<validator_public_ip>:9100
+```
+
+You **must** open ports 9615 and 9100 on the validator's firewall *only*
+for the dashboard host's IP.  Example with UFW:
+
+```bash
+sudo ufw allow from <dashboard_host_ip> to any port 9615 proto tcp
+sudo ufw allow from <dashboard_host_ip> to any port 9100 proto tcp
+sudo ufw reload
+```
+
+Both endpoints serve over HTTP without authentication.  In Topology 2
+you have two options:
+
+1. Restrict by source IP at the validator firewall (above).
+2. Run an SSH tunnel from the dashboard host to the validator host and
+   point the targets at `127.0.0.1`.  More setup, but tunnel-encrypted and
+   no public exposure of the metrics ports.
+
+### Exposing Grafana publicly
+
+By default Grafana binds to `127.0.0.1` only.  Access it from your laptop
+via SSH tunnel:
+
+```bash
+ssh -L 3000:127.0.0.1:3000 <user>@<dashboard_host>
+# then open http://localhost:3000
+```
+
+For permanent public access (e.g. a custom domain), put your own reverse
+proxy + TLS in front of Grafana.  This repo does not ship nginx, Caddy,
+or certificate provisioning — that is your operations decision.  The
+installer just needs to know whether to bind to `127.0.0.1` (recommended)
+or `0.0.0.0`.
+
+---
+
+## Configuration reference
+
+`.env` (created by the installer) contains:
+
+| Variable | Description | Default |
 |---|---|---|
-| `SXT_RPC_URL` | `http://172.17.0.1:9944` | RPC endpoint of your SXT node |
-| `SXT_PROMETHEUS_TARGET` | `172.17.0.1:9615` | Native Substrate metrics endpoint |
-| `NODE_EXPORTER_TARGET` | `172.17.0.1:9100` | Host hardware metrics |
-| `SXT_EXPORTER_POLL_INTERVAL` | `12` | Fast metrics poll interval (seconds) |
-| `SXT_STAKING_POLL_INTERVAL` | `120` | Deep staking data poll interval (seconds) |
-| `SXT_PRICE_POLL_INTERVAL` | `300` | Token price poll interval (seconds) |
-| `SXT_DATA_MOUNTPOINT` | — | Mountpoint for disk usage gauge (find with `df -h`) |
-| `GRAFANA_PORT` | `3000` | Grafana web UI port |
-| `GRAFANA_ADMIN_USER` | `admin` | Grafana admin username |
-| `GRAFANA_ADMIN_PASSWORD` | — | Grafana admin password |
-| `PROMETHEUS_RETENTION` | `30d` | How long Prometheus keeps real-time data |
-| `GRAFANA_BIND` | `127.0.0.1` | Bind address for Grafana (`0.0.0.0` for external access) |
-| `CLICKHOUSE_USER` | `sxt_exporter` | ClickHouse username |
-| `CLICKHOUSE_PASSWORD` | — | ClickHouse password (empty = no auth) |
+| `SXT_LOCAL_VALIDATOR` | Display name of your validator (must match the staking API) | — |
+| `SXT_RPC_URL` | Substrate RPC endpoint | `https://rpc.mainnet.sxt.network` |
+| `SXT_PROMETHEUS_TARGET` | Validator's Prometheus endpoint | `172.17.0.1:9615` |
+| `NODE_EXPORTER_TARGET` | Host metrics endpoint | `172.17.0.1:9100` |
+| `SXT_DATA_MOUNTPOINT` | Mountpoint of the validator's data dir | `/sxt-data` |
+| `GRAFANA_PORT` / `GRAFANA_BIND` | Where Grafana listens | `3000` / `127.0.0.1` |
+| `PROMETHEUS_PORT` | Prometheus host port | `9090` |
+| `CLICKHOUSE_HTTP_PORT` / `CLICKHOUSE_NATIVE_PORT` | ClickHouse host ports | `8123` / `9000` |
+| `SXT_EXPORTER_PORT` | Custom exporter exposition port | `9101` |
+| `*_PASSWORD` | Auto-generated strong passwords (24 base64 chars) | — |
 
-### Running on the validator machine (recommended)
+All ports are configurable.  The installer detects host-port collisions
+and suggests alternatives, or you can preset values via env vars before
+running it.
 
-Default `.env` values work out of the box — the exporter reaches the RPC via Docker bridge (`172.17.0.1`).
+---
 
-### Running on a remote machine
+## Day-to-day operations
+
+`./start.sh` is the operator-facing wrapper.  Run from the repo root:
+
 ```bash
-SXT_RPC_URL=http://YOUR_VALIDATOR_IP:9944
-SXT_PROMETHEUS_TARGET=YOUR_VALIDATOR_IP:9615
-NODE_EXPORTER_TARGET=YOUR_VALIDATOR_IP:9100
+./start.sh status        # container + scrape target health
+./start.sh logs          # follow all logs
+./start.sh logs grafana  # follow one service
+./start.sh restart       # restart the stack
+./start.sh down          # stop everything (data preserved)
+./start.sh render        # re-render templates from .env without restarting
 ```
 
-Ensure firewall allows access from the monitoring machine to those ports.
+For the historical backfill (run once per fresh install):
 
----
-
-## Dashboard structure
-
-The dashboard has 6 collapsible rows with a validator selector dropdown at the top. All panels use SXT brand colors.
-
-| Row | Panels | Key data |
-|---|---|---|
-| **⬡ Chain status** | 12 | Blocks, finality lag, sync, era/epoch progress, runtime |
-| **⬡ Network economics** | 12 | Token price, market cap, volume, APR, stake distribution, era rewards, delegation flows |
-| **⬡ Operator earnings** | 11 | Commission, own yield, monthly/84-day totals, per-era and monthly barcharts, stake history |
-| **⬡ Network staking** | 10 | Validator table with names, stake bars, era points, nominators |
-| **⬡ Node performance** | 12 | BABE production, peers, GRANDPA, bandwidth, proposal time |
-| **⬡ Host resources** | 16 | CPU/RAM/disk gauges, I/O, cache, uptime |
-
-### Validator selector
-
-The dropdown at the top of the dashboard lists all validators in the active set. Selecting a validator updates all Operator earnings panels to show that validator's commission, yield, and stake history. Network-level panels are not affected.
-
-### How validator names work
-
-The exporter fetches names from the [SXT Staking Dashboard API](https://staking.spaceandtime.io/api/validator) once per hour. Names are matched by on-chain address and used as labels in all metrics. No hardcoded mapping needed — names update automatically as validators register.
-
-The validator dropdown in the dashboard lists all validators automatically — no configuration needed.
-
----
-
-## Stack components
-
-| Service | Image | Purpose | Ports |
-|---|---|---|---|
-| `sxt-exporter` | Built from `exporter/` | Custom metrics + economics module | `127.0.0.1:9101` |
-| `sxt-prometheus` | `prom/prometheus:v2.53.0` | Time-series storage (real-time) | `127.0.0.1:9090` |
-| `sxt-clickhouse` | `clickhouse/clickhouse-server:24.8-alpine` | Historical storage (2 year retention) | `127.0.0.1:8123`, `127.0.0.1:9000` |
-| `sxt-grafana` | `grafana/grafana:12.3.2` | Visualization | `127.0.0.1:3000` (configurable) |
-
-ClickHouse tables: `price_history`, `era_rewards`, `era_snapshots`, `delegation_snapshots`. Views: `v_validator_earnings`, `v_validator_monthly`, `v_era_rewards`, `v_delegation_changes`.
-
----
-
-## Security
-
-All service ports are bound to `127.0.0.1` by default — only Grafana can be exposed externally via `GRAFANA_BIND=0.0.0.0` in `.env`. The exporter container runs as a non-root user. ClickHouse supports optional authentication via `CLICKHOUSE_USER` / `CLICKHOUSE_PASSWORD`. Prometheus admin API is disabled to prevent remote TSDB deletion.
-
-If running Grafana with external access, use a strong `GRAFANA_ADMIN_PASSWORD` and consider placing a reverse proxy (Caddy, nginx) with TLS in front.
-
----
-
-## Management commands
 ```bash
-./start.sh up        # Start the stack
-./start.sh down      # Stop the stack
-./start.sh restart   # Rebuild and restart
-./start.sh status    # Check container health and Prometheus targets
-./start.sh logs      # Follow all logs (or: ./start.sh logs sxt-exporter)
+docker compose exec sxt-exporter \
+    python3 /app/scripts/backfill.py all --force
 ```
 
+`--force` is required because the live exporter writes the current era
+immediately on startup; without it, the backfill thinks it has nothing
+to do.
+
+The backfill walks the last 80 eras (~80 days of mainnet history).
+Roughly one minute per era is normal on the public RPC; pointing
+`SXT_BACKFILL_RPC` at your own archive node cuts the wall-clock time
+significantly.
+
 ---
 
-## Updating
-```bash
-cd sxt-validator-dashboard
-git pull
-./start.sh restart
-```
+## Security model
+
+The default install lays down a defensible baseline:
+
+- **Two ClickHouse users.**  `sxt_exporter` (write access, used by the
+  exporter and backfill) and `sxt_dashboard` (read-only, used by Grafana).
+  A SQL injection through a Grafana panel can neither mutate data nor
+  exfiltrate beyond the `sxt.*` schema.
+- **Read-only resource profile** on `sxt_dashboard`: `readonly=1`,
+  `max_memory_usage=2GB`, `max_execution_time=30s`,
+  `max_result_rows=100k`.  Caps DoS via crafted queries.
+- **`127.0.0.1` bind by default** for all services.  Operators choose
+  their own exposure path (reverse proxy + TLS, SSH tunnel, IP allowlist).
+- **Strong passwords by default.**  The installer generates with
+  `openssl rand -base64 24` and writes `.env` mode `600`.
+- **No hardcoded secrets in the repo.**  Everything secret lives in `.env`,
+  which is gitignored.  Templates `(*.tpl)` are rendered to runtime files
+  at boot and those rendered files are also gitignored.
+- **Pinned plugin versions.**  Grafana plugins use exact pins for
+  reproducibility; updates are explicit, not opportunistic.
+- **Pinned Python dependencies.**  Same idea for the exporter image.
 
 ---
 
 ## Troubleshooting
 
-**No data in staking panels**: Wait up to 120 seconds for the first deep staking scrape.
+### Backfill says "nothing to do" but the database is empty
+
+The live exporter writes the current era to ClickHouse on its first poll,
+so `backfill.py` sees a row, computes a resume point past the end of the
+window you asked for, and exits.  Use `--force`:
+
 ```bash
-curl -s http://localhost:9101/metrics | grep sxt_validator_total_stake | head -3
+docker compose exec sxt-exporter \
+    python3 /app/scripts/backfill.py all --force
 ```
 
-**No economic data**: The earnings calculation runs once per era change. Check:
+### `port already in use` when bringing the stack up
+
+Another stack on the same host is using one of the default ports.  Either
+pick alternatives via env vars and re-run `install.sh`:
+
 ```bash
-docker logs sxt-exporter 2>&1 | grep -E "Earnings calc|Token price"
+GRAFANA_PORT=3002 PROMETHEUS_PORT=9092 ./install.sh
 ```
 
-**ClickHouse tables empty**: Verify ClickHouse is healthy:
+…or run the installer from scratch and let it auto-suggest free ports.
+
+### Grafana UI says "you don't have permission" when creating users
+
+If you put a reverse proxy in front of Grafana, you may have blocked
+`/api/admin/*` for non-loopback traffic.  This is a common (and
+recommended) hardening step.
+
+To create or manage users, open an SSH tunnel from your laptop directly
+to Grafana, bypassing the reverse proxy:
+
 ```bash
-docker exec sxt-clickhouse clickhouse-client --database sxt --query "SHOW TABLES"
-docker exec sxt-clickhouse clickhouse-client --database sxt --query "SELECT count() FROM era_rewards"
+ssh -L 3000:127.0.0.1:3000 <user>@<dashboard_host>
+# then open http://localhost:3000 and log in as admin
 ```
 
-**Exporter errors**:
+Or use the API:
+
 ```bash
-docker compose logs sxt-exporter --tail 30
+curl -u admin:<admin_pwd> -X POST -H "Content-Type: application/json" \
+    -d '{"name":"viewer","email":"viewer@example.com","login":"viewer","password":"strong-pwd"}' \
+    http://127.0.0.1:3000/api/admin/users
 ```
 
-**Prometheus targets down**:
-```bash
-curl -s http://localhost:9090/api/v1/targets | python3 -m json.tool
+### Some panels return 503 during the backfill
+
+ClickHouse is busy ingesting batched inserts and its query engine slows
+down.  Dashboard queries with the `max_execution_time=30s` cap can time
+out and surface as 503 in the browser console.  This clears up on its
+own once backfill finishes.
+
+If you need to ride this out, you can temporarily relax the limit:
+
+```sql
+ALTER SETTINGS PROFILE sxt_dashboard_profile
+    SETTINGS max_execution_time = 60 CHANGEABLE_IN_READONLY;
 ```
 
-**Disk gauge shows wrong disk**: Set `SXT_DATA_MOUNTPOINT` in `.env` and restart. Find your mountpoint with `df -h`.
+…and revert it after the backfill is done.
 
-**Grafana not loading dashboard**: Delete the Grafana volume and restart:
+### `failed to create ClickHouse client` in Grafana logs
+
+Either the `sxt_dashboard` user does not exist in ClickHouse (the
+init.sql aborted halfway), or the password in `.env` no longer matches.
+Re-render and re-apply:
+
 ```bash
-docker compose down
-docker volume rm sxt-validator-dashboard_grafana-data
-./start.sh up
+./start.sh render
+docker compose exec -T clickhouse clickhouse-client \
+    --user "$(grep ^CLICKHOUSE_USER= .env | cut -d= -f2-)" \
+    --password "$(grep ^CLICKHOUSE_PASSWORD= .env | cut -d= -f2-)" \
+    --multiquery < clickhouse/init.sql
+docker compose restart grafana
 ```
 
-**Validator not in dropdown**: The dropdown populates from on-chain data. If a validator is missing, wait for the next staking deep scrape (~120s) or check the [SXT Staking Dashboard](https://staking.spaceandtime.io/).
+### Backfill takes longer than expected per era
 
-**Historical charts empty after install**: Run the [initial historical backfill](#initial-historical-backfill) to populate up to 80 days of data. Otherwise charts will fill in organically as the exporter runs through era changes.
+The public RPC is load-balanced across multiple backend nodes, and
+round-trip latency varies.  `backfill.py` retries with backoff when it
+sees inconsistent responses.  Roughly one minute per era is normal under
+contention.
+
+If you operate your own archive node, point the backfill there:
+
+```bash
+SXT_BACKFILL_RPC=ws://<your_archive>:9944 \
+    docker compose exec -e SXT_BACKFILL_RPC sxt-exporter \
+    python3 /app/scripts/backfill.py all --force
+```
+
+…cuts the total run from ~80 min to ~15.
+
+### Validator name validation says my validator is not in the staking API
+
+The installer fetches `https://staking.spaceandtime.io/api/validator` and
+looks for an exact (case-sensitive) match.  Edge cases:
+
+- API unreachable: warn-and-continue.  You can use any name; just be sure
+  it matches what the chain reports.
+- Typo in your validator's display name: the installer suggests the three
+  closest matches.  Pick one and re-run.
+- Validator newly registered and not yet indexed: use the name and continue;
+  it will resolve on the next API refresh.
 
 ---
 
 ## License
 
-MIT
-
----
-
-Built by [Ethernodes](https://ethernodes.io) for the [Space and Time](https://www.spaceandtime.io/) validator community.
+Released under the [MIT License](LICENSE).
