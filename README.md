@@ -46,6 +46,11 @@ You will need:
   ```
   No separate Prometheus install is needed on the validator host — only
   `node_exporter` (below) for host-level metrics.
+- The SXT node's Substrate RPC reachable on TCP (default port `9944`).
+  This is needed for the staking deep collection.  The exporter MUST
+  point to **your own node** via `SXT_RPC_URL`, never to a public RPC
+  endpoint — public RPCs are load-balanced and idle-close WebSockets,
+  which causes the staking loop to stall.
 - `node_exporter` running on that same validator host (default `9100`).
 - ~10 GB free disk for ClickHouse data and 80-day backfill.
 
@@ -176,7 +181,10 @@ or `0.0.0.0`.
 | Variable | Description | Default |
 |---|---|---|
 | `SXT_LOCAL_VALIDATOR` | Display name of your validator (must match the staking API) | — |
-| `SXT_RPC_URL` | Substrate RPC endpoint | `https://rpc.mainnet.sxt.network` |
+| `SXT_RPC_URL` | Substrate RPC endpoint of **your** node, e.g. `http://<node_ip>:9944` (the exporter rewrites the scheme to `ws://` internally).  Never use a public RPC. | `http://172.17.0.1:9944` |
+| `SXT_RECONNECT_AFTER_FAILURES` | Force a fresh substrate WebSocket reconnect after this many consecutive collection failures. | `10` |
+| `SXT_STALE_HEALTH_SECONDS` | `/health` returns 503 if no successful collection has occurred in this many seconds.  Triggers docker healthcheck to restart the container. | `300` |
+| `SXT_MAX_BACKOFF_SECONDS` | Cap of the exponential backoff applied between failed collection attempts. | `30` |
 | `SXT_PROMETHEUS_TARGET` | Validator's Prometheus endpoint | `172.17.0.1:9615` |
 | `NODE_EXPORTER_TARGET` | Host metrics endpoint | `172.17.0.1:9100` |
 | `SXT_DATA_MOUNTPOINT` | Mountpoint of the validator's data dir | `/sxt-data` |
@@ -340,6 +348,38 @@ SXT_BACKFILL_RPC=ws://<your_archive>:9944 \
 ```
 
 …cuts the total run from ~80 min to ~15.
+
+### Exporter stops updating SXT-namespace metrics after a while
+
+If you see panels such as `Block heights`, `Peers over time` or `Finality lag`
+freezing on a stale value while other panels keep moving, the custom exporter
+has lost its WebSocket session against the Substrate RPC.
+
+This is almost always caused by `SXT_RPC_URL` pointing at a public RPC
+(e.g. `https://rpc.mainnet.sxt.network`).  Public endpoints are load-balanced
+across multiple backend nodes and close idle WebSockets aggressively, which
+breaks the long-lived connection used by `substrate-interface`.
+
+The fix is to point the exporter at **your own node**:
+
+```bash
+# in .env on the dashboard host
+SXT_RPC_URL=http://<your_validator_ip>:9944
+```
+
+…and make sure your validator's firewall allows TCP/9944 from the dashboard
+host.  Then recreate the exporter:
+
+```bash
+docker compose up -d --force-recreate sxt-exporter
+```
+
+The exporter is also resilient by design: after `SXT_RECONNECT_AFTER_FAILURES`
+consecutive failures it forces a fresh WebSocket connection and applies an
+exponential backoff (`SXT_MAX_BACKOFF_SECONDS` cap).  If `/health` reports a
+stale collection beyond `SXT_STALE_HEALTH_SECONDS`, the docker healthcheck
+returns 503 and the container is restarted by the `restart: unless-stopped`
+policy.
 
 ### Validator name validation says my validator is not in the staking API
 

@@ -607,9 +607,18 @@ _substrate_reconnects_total = 0
 _staking_last_run = 0.0
 STAKING_POLL_INTERVAL = int(os.getenv("SXT_STAKING_POLL_INTERVAL", "120"))
 
-# Hard-fail tracking: if collect_staking_deep fails N times in a row,
-# exit and let Docker restart the container.
+# Resilience tracking for the staking deep collection loop.
+# Strategy: never exit() the process. Instead, force-reconnect the substrate
+# WebSocket every N consecutive failures, apply exponential backoff between
+# retries, and expose health via /health (which returns 503 if no successful
+# collection in the last STALE_HEALTH_SECONDS). Docker's healthcheck plus
+# `restart: unless-stopped` then restart the container if the loop is stuck.
 _consecutive_failures = 0
+_last_successful_collection_unix = 0.0
+RECONNECT_AFTER_FAILURES = int(os.getenv("SXT_RECONNECT_AFTER_FAILURES", "10"))
+STALE_HEALTH_SECONDS = int(os.getenv("SXT_STALE_HEALTH_SECONDS", "300"))
+MAX_BACKOFF_SECONDS = int(os.getenv("SXT_MAX_BACKOFF_SECONDS", "30"))
+# Kept for backwards compat — surfaced as a metric, no longer triggers exit().
 MAX_CONSECUTIVE_FAILURES = int(os.getenv("SXT_MAX_CONSECUTIVE_FAILURES", "30"))
 
 
@@ -884,19 +893,32 @@ def collect_staking_deep():
 
     except Exception:
         _consecutive_failures += 1
-        log.exception("Failed staking deep collection (consecutive failures: %d/%d)",
-                      _consecutive_failures, MAX_CONSECUTIVE_FAILURES)
+        log.exception("Failed staking deep collection (consecutive failures: %d)",
+                      _consecutive_failures)
         store.set("sxt_exporter_consecutive_failures", _consecutive_failures,
                   "Number of consecutive collect_staking_deep failures")
-        if _consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
-            log.critical("Reached %d consecutive failures, exiting for Docker restart",
-                         MAX_CONSECUTIVE_FAILURES)
-            sys.exit(1)
+        # Every RECONNECT_AFTER_FAILURES, force a fresh WebSocket connection.
+        if _consecutive_failures % RECONNECT_AFTER_FAILURES == 0:
+            log.warning("Forcing substrate WebSocket reconnect after %d failures",
+                        _consecutive_failures)
+            try:
+                _get_substrate(force_reconnect=True)
+            except Exception:
+                log.exception("Forced reconnect failed; will retry next cycle")
+        # Exponential backoff capped at MAX_BACKOFF_SECONDS to ease pressure on the RPC.
+        backoff = min(MAX_BACKOFF_SECONDS, 2 ** min(_consecutive_failures, 5))
+        log.info("Sleeping %ds before next attempt", backoff)
+        time.sleep(backoff)
         return
-    # Success path: reset counter and update health metrics
+    # Success path: reset counter and stamp health metrics.
+    global _last_successful_collection_unix
     _consecutive_failures = 0
+    _last_successful_collection_unix = time.time()
     store.set("sxt_exporter_consecutive_failures", 0,
               "Number of consecutive collect_staking_deep failures")
+    store.set("sxt_exporter_last_successful_collection_unix",
+              _last_successful_collection_unix,
+              "Unix time of the last successful staking-deep collection")
     store.set("sxt_exporter_substrate_reconnects_total", _substrate_reconnects_total,
               "Total times substrate WebSocket has been forcibly reconnected")
     store.set("sxt_exporter_clickhouse_last_write_unix_seconds",
@@ -955,10 +977,29 @@ class MetricsHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
         elif self.path == "/health":
-            self.send_response(200)
-            self.send_header("Content-Type", "text/plain")
+            # Strict health: returns 503 if no successful collection in the
+            # last STALE_HEALTH_SECONDS, so docker healthcheck triggers a
+            # restart when the staking loop is stuck even though the HTTP
+            # server is still alive.
+            now = time.time()
+            last_ok = _last_successful_collection_unix
+            if last_ok == 0:
+                # Process just started — give it a grace period.
+                stale = False
+                age = 0
+            else:
+                age = now - last_ok
+                stale = age > STALE_HEALTH_SECONDS
+            if stale:
+                body = ('{"status":"unhealthy","stale_seconds":%d}\n' % int(age)).encode()
+                self.send_response(503)
+            else:
+                body = ('{"status":"ok","stale_seconds":%d}\n' % int(age)).encode()
+                self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
             self.end_headers()
-            self.wfile.write(b"OK\n")
+            self.wfile.write(body)
         else:
             self.send_response(404)
             self.end_headers()
