@@ -4,7 +4,8 @@ A self-hosted, open-source monitoring dashboard for [Space and Time](https://www
 mainnet validators.  Tracks chain status, network economics, per-validator
 earnings, stake evolution, and host metrics — all in one Grafana page.
 
-[IMG]
+<img width="2238" height="1143" alt="sxtdashboard" src="https://github.com/user-attachments/assets/433228f3-c7a2-4f9c-9f2b-9c5dd9224b5d" />
+
 
 Built and maintained by [Ethernodes](https://github.com/talinito).
 For questions, ping `talinito` on Discord.
