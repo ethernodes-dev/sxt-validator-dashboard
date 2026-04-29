@@ -1,3 +1,11 @@
-requests>=2.31.0,<3.0.0
-substrate-interface>=1.8.0,<2.0.0
-xxhash>=3.4.0,<4.0.0
+# SXT exporter Python dependencies — pinned to exact versions for
+# reproducible builds and supply-chain stability.
+#
+# Last verified: 2026-04-28
+#   requests             https://pypi.org/project/requests/
+#   substrate-interface  https://pypi.org/project/substrate-interface/
+#   xxhash               https://pypi.org/project/xxhash/
+
+requests==2.33.1
+substrate-interface==1.7.11
+xxhash==3.6.0

@@ -603,13 +603,33 @@ def collect_active_era():
 # Staking deep collector (substrate-interface, runs on slow interval)
 # ---------------------------------------------------------------------------
 _substrate = None
+_substrate_reconnects_total = 0
 _staking_last_run = 0.0
 STAKING_POLL_INTERVAL = int(os.getenv("SXT_STAKING_POLL_INTERVAL", "120"))
 
+# Hard-fail tracking: if collect_staking_deep fails N times in a row,
+# exit and let Docker restart the container.
+_consecutive_failures = 0
+MAX_CONSECUTIVE_FAILURES = int(os.getenv("SXT_MAX_CONSECUTIVE_FAILURES", "30"))
 
-def _get_substrate():
-    """Lazy-init substrate-interface connection."""
-    global _substrate
+
+def _get_substrate(force_reconnect: bool = False):
+    """Lazy-init substrate-interface connection with reconnection support.
+
+    If force_reconnect=True, the cached client is discarded and a fresh
+    connection is opened. Used after BrokenPipeError or socket-level failures
+    that auto_reconnect=True does not handle reliably.
+    """
+    global _substrate, _substrate_reconnects_total
+    if force_reconnect and _substrate is not None:
+        try:
+            _substrate.close()
+        except Exception:
+            pass
+        _substrate = None
+        _substrate_reconnects_total += 1
+        log.warning("substrate-interface forced reconnect (total: %d)",
+                    _substrate_reconnects_total)
     if _substrate is None:
         try:
             from substrateinterface import SubstrateInterface
@@ -621,13 +641,43 @@ def _get_substrate():
     return _substrate
 
 
+def _safe_substrate_call(fn, *args, retries: int = 2, **kwargs):
+    """Call a substrate-interface method with auto-reconnect on socket errors.
+
+    Catches BrokenPipeError, ConnectionResetError, OSError and websocket
+    exceptions, then forces reconnect and retries. Returns None if all
+    retries fail (caller must handle None gracefully).
+    """
+    last_exc = None
+    for attempt in range(retries + 1):
+        try:
+            return fn(*args, **kwargs)
+        except (BrokenPipeError, ConnectionResetError, OSError) as exc:
+            last_exc = exc
+            log.warning("substrate call failed (attempt %d/%d): %s",
+                        attempt + 1, retries + 1, type(exc).__name__)
+            _get_substrate(force_reconnect=True)
+        except Exception as exc:
+            # Catch websocket exceptions and SubstrateRequestException too
+            exc_name = type(exc).__name__
+            if any(s in exc_name for s in ("WebSocket", "Connection", "BrokenPipe")):
+                last_exc = exc
+                log.warning("substrate call failed (attempt %d/%d): %s",
+                            attempt + 1, retries + 1, exc_name)
+                _get_substrate(force_reconnect=True)
+            else:
+                raise
+    log.error("substrate call exhausted retries: %s", last_exc)
+    return None
+
+
 def collect_staking_deep():
     """Full staking data: validators, stake, commission, nominators, rewards.
 
     Runs every STAKING_POLL_INTERVAL seconds (default 120s) since era data
     changes slowly. Emits per-validator labeled metrics.
     """
-    global _staking_last_run
+    global _staking_last_run, _consecutive_failures
     now = time.monotonic()
     if now - _staking_last_run < STAKING_POLL_INTERVAL:
         return
@@ -641,7 +691,7 @@ def collect_staking_deep():
 
     try:
         # ---- Network totals ----
-        validator_count = sub.query("Staking", "ValidatorCount")
+        validator_count = _safe_substrate_call(sub.query, "Staking", "ValidatorCount")
         counter_validators = sub.query("Staking", "CounterForValidators")
         counter_nominators = sub.query("Staking", "CounterForNominators")
         current_era_raw = sub.query("Staking", "CurrentEra")
@@ -833,7 +883,25 @@ def collect_staking_deep():
                  total_nominators, elapsed)
 
     except Exception:
-        log.exception("Failed staking deep collection")
+        _consecutive_failures += 1
+        log.exception("Failed staking deep collection (consecutive failures: %d/%d)",
+                      _consecutive_failures, MAX_CONSECUTIVE_FAILURES)
+        store.set("sxt_exporter_consecutive_failures", _consecutive_failures,
+                  "Number of consecutive collect_staking_deep failures")
+        if _consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
+            log.critical("Reached %d consecutive failures, exiting for Docker restart",
+                         MAX_CONSECUTIVE_FAILURES)
+            sys.exit(1)
+        return
+    # Success path: reset counter and update health metrics
+    _consecutive_failures = 0
+    store.set("sxt_exporter_consecutive_failures", 0,
+              "Number of consecutive collect_staking_deep failures")
+    store.set("sxt_exporter_substrate_reconnects_total", _substrate_reconnects_total,
+              "Total times substrate WebSocket has been forcibly reconnected")
+    store.set("sxt_exporter_clickhouse_last_write_unix_seconds",
+              getattr(economics, "_ch_last_write_unix", 0),
+              "Unix timestamp of last successful ClickHouse write")
 
 
 def collect_all():

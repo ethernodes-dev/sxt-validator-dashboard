@@ -42,6 +42,7 @@ _ch_last_era_written = -1
 _prev_stakes: dict[str, float] = {}
 _era_start_cache: dict[str, int] = {}
 _substrate_econ = None
+_econ_reconnects_total = 0
 
 _current_price = {
     "usd": 0.0,
@@ -117,8 +118,18 @@ def _get_era_timestamp(sub, era: int) -> str:
 # ---------------------------------------------------------------------------
 
 
-def _get_substrate():
-    global _substrate_econ
+def _get_substrate(force_reconnect: bool = False):
+    """Lazy-init substrate-interface for economics with reconnect support."""
+    global _substrate_econ, _econ_reconnects_total
+    if force_reconnect and _substrate_econ is not None:
+        try:
+            _substrate_econ.close()
+        except Exception:
+            pass
+        _substrate_econ = None
+        _econ_reconnects_total += 1
+        log.warning("economics substrate-interface forced reconnect (total: %d)",
+                    _econ_reconnects_total)
     if _substrate_econ is None:
         try:
             from substrateinterface import SubstrateInterface
@@ -130,6 +141,28 @@ def _get_substrate():
     return _substrate_econ
 
 
+def _econ_safe_call(fn, *args, retries: int = 2, **kwargs):
+    """Same retry wrapper as in sxt_exporter, scoped to economics module."""
+    last_exc = None
+    for attempt in range(retries + 1):
+        try:
+            return fn(*args, **kwargs)
+        except (BrokenPipeError, ConnectionResetError, OSError) as exc:
+            last_exc = exc
+            log.warning("economics substrate call failed (attempt %d/%d): %s",
+                        attempt + 1, retries + 1, type(exc).__name__)
+            _get_substrate(force_reconnect=True)
+        except Exception as exc:
+            exc_name = type(exc).__name__
+            if any(s in exc_name for s in ("WebSocket", "Connection", "BrokenPipe")):
+                last_exc = exc
+                log.warning("economics substrate call failed (attempt %d/%d): %s",
+                            attempt + 1, retries + 1, exc_name)
+                _get_substrate(force_reconnect=True)
+            else:
+                raise
+    log.error("economics substrate call exhausted retries: %s", last_exc)
+    return None
 def get_current_price_usd() -> float:
     return _current_price["usd"]
 
@@ -231,6 +264,16 @@ def _ch_query(query: str, data: str = "") -> Optional[str]:
         log.exception("Unexpected ClickHouse error")
         return None
 
+
+
+def _ch_record_write_timestamp():
+    """Record the current Unix timestamp as the last successful ClickHouse write.
+    Read by sxt_exporter to expose sxt_exporter_clickhouse_last_write_unix_seconds."""
+    global _ch_last_write_unix
+    _ch_last_write_unix = int(time.time())
+
+
+_ch_last_write_unix = 0
 
 def ch_health_check() -> bool:
     if not CLICKHOUSE_ENABLED:
@@ -366,10 +409,12 @@ def post_staking_hook(store) -> None:
                   "\n".join(era_rows) + "\n")
         log.info("Wrote %d era_rewards rows for era %d to ClickHouse",
                  len(era_rows), era)
+        _ch_record_write_timestamp()
 
     if delegation_rows:
         _ch_query("INSERT INTO delegation_snapshots FORMAT TabSeparated",
                   "\n".join(delegation_rows) + "\n")
+        _ch_record_write_timestamp()
 
 
 def _find_labeled_value(store, metric_name: str, address: str) -> float:

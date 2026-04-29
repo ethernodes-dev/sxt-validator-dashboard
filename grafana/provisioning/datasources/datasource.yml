@@ -1,8 +1,18 @@
 apiVersion: 1
 
+# Provisioned datasources are not editable from the Grafana UI by design
+# (see provider config: allowUiUpdates: false).  All changes must go
+# through this file.
+#
+# Variable interpolation: Grafana provisioning replaces ${VAR} BEFORE $VAR.
+# When a value contains literal $ characters (e.g. a generated password
+# like "Pa$sw0rd"), use the bare $VAR form to avoid double-expansion bugs.
+# Reference: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
 datasources:
   - name: Prometheus
     type: prometheus
+    uid: sxt-prometheus
     access: proxy
     url: http://prometheus:9090
     isDefault: true
@@ -13,6 +23,7 @@ datasources:
 
   - name: ClickHouse
     type: grafana-clickhouse-datasource
+    uid: sxt-clickhouse
     access: proxy
     editable: false
     jsonData:
@@ -20,6 +31,10 @@ datasources:
       port: 9000
       protocol: native
       defaultDatabase: sxt
-      username: $CLICKHOUSE_USER
+      # Read-only user defined in clickhouse/init.sql.tpl with
+      # readonly=1 + resource limits (max_memory_usage 2 GB,
+      # max_execution_time 30s, max_result_rows 100k, max_threads 2).
+      # Even a SQLi through any panel cannot mutate or DoS the DB.
+      username: $SXT_DASHBOARD_USER
     secureJsonData:
-      password: $CLICKHOUSE_PASSWORD
+      password: $SXT_DASHBOARD_PASSWORD

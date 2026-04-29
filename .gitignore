@@ -1,8 +1,25 @@
+# Local config (never commit)
 .env
-prometheus/prometheus.rendered.yml
+.env.backup.*
+
+# Rendered files generated from .tpl by start.sh / install.sh
+prometheus/prometheus.yml
+clickhouse/init.sql
+grafana/dashboards/sxt-validator.json
+
+# Runtime data
 grafana-data/
 prometheus-data/
+clickhouse-data/
+
+# Python
 __pycache__/
 *.pyc
 .DS_Store
-.env.backup.*
+
+# Backups from in-session resilience patches
+exporter/.bak/
+.patch-backup/
+patch-package-*/
+install.log
+backfill.log
