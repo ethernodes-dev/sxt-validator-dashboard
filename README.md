@@ -34,28 +34,21 @@ concern:
 
 ---
 
-## Quick start
+## Quick install
 
-You will need:
+Single-host setup (validator and dashboard on the same machine).
+For a remote dashboard, see **Deployment topologies** below.
 
-- A Linux host with Docker 20.10+ and Docker Compose v2.
-- An SXT validator with the built-in Prometheus exposition enabled.  The
-  SXT node binary is Substrate-based and exposes metrics natively when
-  started with these flags:
-  ```
-  --prometheus-external --prometheus-port 9615
-  ```
-  No separate Prometheus install is needed on the validator host — only
-  `node_exporter` (below) for host-level metrics.
-- The SXT node's Substrate RPC reachable on TCP (default port `9944`).
-  This is needed for the staking deep collection.  The exporter MUST
-  point to **your own node** via `SXT_RPC_URL`, never to a public RPC
-  endpoint — public RPCs are load-balanced and idle-close WebSockets,
-  which causes the staking loop to stall.
-- `node_exporter` running on that same validator host (default `9100`).
-- ~10 GB free disk for ClickHouse data and 80-day backfill.
+**Prerequisites**
 
-Then:
+- Linux host with Docker 20.10+ and Docker Compose v2
+- SXT validator running on the same host with these flags:
+  - `--prometheus-external --prometheus-port 9615` (chain metrics)
+  - Substrate RPC exposed on `:9944` (default; used for staking deep collection)
+- `node_exporter` running on the same host (default port `9100`)
+- ~10 GB free disk for ClickHouse data and 80-day backfill
+
+**Install**
 
 ```bash
 git clone https://github.com/talinito/sxt-validator-dashboard.git
@@ -63,15 +56,14 @@ cd sxt-validator-dashboard
 ./install.sh
 ```
 
-The installer is interactive.  It walks through pre-flight checks, asks for
-your validator name (validated against the live SXT staking API), endpoint
-addresses, host ports (auto-detects collisions), generates strong random
-passwords, lays down `.env` (mode 600), starts the stack, and offers to
-launch the historical backfill in the background.
+That's it.  The installer is interactive: it runs pre-flight checks, validates
+your validator name against the live SXT staking API, picks free host ports,
+generates strong random passwords, writes `.env` (mode 600), brings the stack
+up, and optionally launches the historical backfill in the background.
 
-When it finishes, Grafana is reachable at `http://127.0.0.1:3000` (or the
-port you chose).  See **Deployment topologies** below for how to expose it
-beyond the host.
+When it finishes, Grafana is reachable at `http://127.0.0.1:3000` (or the port
+you chose).  See **Deployment topologies** below for exposing it beyond the
+host.
 
 ---
 
