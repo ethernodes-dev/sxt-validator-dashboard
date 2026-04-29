@@ -541,9 +541,7 @@ def run_backfill(mode: str, from_era: int, to_era: int, current_block: int,
                 log.info("  Rewards: total=%.2f SXT, %d validators with points",
                          reward_rows[0]["era_total_reward"], len(reward_rows))
                 if not dry_run:
-                    written = write_era_rewards(era, reward_rows, stake_rows,
-                                                time.strftime("%Y-%m-%d %H:%M:%S.000",
-                                                              time.gmtime()))
+                    written = write_era_rewards(era, reward_rows, stake_rows, ts)
                     log.info("  Rewards: wrote %d rows into era_rewards", written)
                 else:
                     log.info("  [DRY] Would update %d reward rows", len(reward_rows))

@@ -19,7 +19,7 @@
   "style": "dark",
   "panels": [
     {
-      "title": "\u2b22 Protocol overview",
+      "title": "⬢ Protocol overview",
       "type": "row",
       "collapsed": true,
       "gridPos": {
@@ -95,7 +95,7 @@
           "type": "marcusolsson-dynamictext-panel",
           "title": "",
           "datasource": "Prometheus",
-          "description": "Latest finalized block (irreversible tip confirmed by GRANDPA).\n\nSource: substrate_block_height{status='finalized'} (finalized by GRANDPA).\nGRANDPA is Substrate's finality gadget; once \u22652/3 validators vote a block, it and all ancestors become provably final.",
+          "description": "Latest finalized block (irreversible tip confirmed by GRANDPA).\n\nSource: substrate_block_height{status='finalized'} (finalized by GRANDPA).\nGRANDPA is Substrate's finality gadget; once ≥2/3 validators vote a block, it and all ancestors become provably final.",
           "gridPos": {
             "x": 3,
             "y": 1,
@@ -157,7 +157,7 @@
           "type": "marcusolsson-dynamictext-panel",
           "title": "",
           "datasource": "Prometheus",
-          "description": "Number of blocks between 'best' (BABE head) and 'finalized' (GRANDPA tip).\n\nSource: sxt_finality_lag_blocks = best_height - finalized_height.\nHealthy: 2-3 blocks (normal GRANDPA round). Warn: >5. Danger: >20 (GRANDPA stalling \u2014 possible validator connectivity or consensus issue).",
+          "description": "Number of blocks between 'best' (BABE head) and 'finalized' (GRANDPA tip).\n\nSource: sxt_finality_lag_blocks = best_height - finalized_height.\nHealthy: 2-3 blocks (normal GRANDPA round). Warn: >5. Danger: >20 (GRANDPA stalling — possible validator connectivity or consensus issue).",
           "gridPos": {
             "x": 6,
             "y": 1,
@@ -589,7 +589,7 @@
           "type": "marcusolsson-dynamictext-panel",
           "title": "",
           "datasource": "Prometheus",
-          "description": "Progress through the current staking era, 0-100%.\n\nSource: sxt_staking_era_progress \u00d7 100.\nAt 100%, the era closes and rewards are distributed; a new era starts.",
+          "description": "Progress through the current staking era, 0-100%.\n\nSource: sxt_staking_era_progress × 100.\nAt 100%, the era closes and rewards are distributed; a new era starts.",
           "gridPos": {
             "x": 4,
             "y": 5,
@@ -650,7 +650,7 @@
           "type": "marcusolsson-dynamictext-panel",
           "title": "",
           "datasource": "Prometheus",
-          "description": "Progress through the current BABE epoch, 0-100%.\n\nSource: sxt_network_babe_epoch_progress \u00d7 100.\nShorter cycle than eras; used for rotating block authorship duties.",
+          "description": "Progress through the current BABE epoch, 0-100%.\n\nSource: sxt_network_babe_epoch_progress × 100.\nShorter cycle than eras; used for rotating block authorship duties.",
           "gridPos": {
             "x": 14,
             "y": 5,
@@ -711,7 +711,7 @@
       "description": "Chain-wide state: blocks, finality, era/epoch, runtime."
     },
     {
-      "title": "\u2b22 Network economics",
+      "title": "⬢ Network economics",
       "type": "row",
       "collapsed": true,
       "gridPos": {
@@ -845,7 +845,7 @@
           "type": "marcusolsson-dynamictext-panel",
           "title": "",
           "datasource": "Prometheus",
-          "description": "Total market capitalization of SXT in USD.\n\nSource: sxt_token_market_cap_usd (CoinGecko)\nCalculated as circulating supply \u00d7 current price.",
+          "description": "Total market capitalization of SXT in USD.\n\nSource: sxt_token_market_cap_usd (CoinGecko)\nCalculated as circulating supply × current price.",
           "gridPos": {
             "x": 8,
             "y": 1,
@@ -1128,7 +1128,7 @@
       "description": "Token price, market cap, volume and network-level USD metrics."
     },
     {
-      "title": "\u2b22 Validators \u2014 global stats",
+      "title": "⬢ Validators — global stats",
       "type": "row",
       "collapsed": true,
       "gridPos": {
@@ -1565,7 +1565,7 @@
           "description": "Treemap showing each validator's total stake as a tile, sized by SXT bonded.\n\nSource: sxt_validator_total_stake{address=...}\nVisual check for stake concentration.",
           "gridPos": {
             "x": 0,
-            "y": 5,
+            "y": 13,
             "w": 12,
             "h": 14
           },
@@ -1582,7 +1582,7 @@
               "format": "full",
               "height": 600
             },
-            "getOption": "const frame = context.panel.data.series[0];\nif (!frame || !frame.fields) return { title: { text: 'No data', textStyle: { color: '#6F4D80' }, left: 'center', top: 'middle' } };\n\n// Extract validator addresses (from labels) and stake values\nconst valueField = frame.fields.find(f => f.type === 'number');\nif (!valueField) return {};\nconst values = valueField.values.buffer || valueField.values;\nconst labels = valueField.labels || {};\nconst valueLabels = valueField.config?.displayNameFromDS || '';\n\n// Each series in the frame has its own validator label. Since all validators\n// return a single value each, we have multiple series in frame.\nconst series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  // Label: try to find validator address in labels\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '\u2026' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => b.value - a.value);\n\n// Build color scale magenta->purple based on rank\nconst colorFor = (i, total) => {\n  const t = i / Math.max(1, total - 1);\n  // interpolate from magenta (#CC0AAC) to purple (#5000BF)\n  const r1=0xCC, g1=0x0A, b1=0xAC;\n  const r2=0x50, g2=0x00, b2=0xBF;\n  const r=Math.round(r1 + (r2-r1)*t);\n  const g=Math.round(g1 + (g2-g1)*t);\n  const b=Math.round(b1 + (b2-b1)*t);\n  return 'rgb(' + r + ',' + g + ',' + b + ')';\n};\n\nconst totalStake = data.reduce((a, b) => a + b.value, 0);\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter, sans-serif', fontSize: 11 },\n    formatter: (info) => {\n      const pct = ((info.value / totalStake) * 100).toFixed(2);\n      return '<div style=\"padding:2px 0;\">'\n        + '<div style=\"color:#CC0AAC; font-weight:600; margin-bottom:4px;\">' + (info.data.fullName || info.name) + '</div>'\n        + '<div>Stake: <b>' + Number(info.value).toLocaleString('en-US') + '</b></div>'\n        + '<div>Share: <b>' + pct + '%</b></div>'\n        + '</div>';\n    },\n  },\n  series: [{\n    type: 'treemap',\n    data: data.map((d, i) => ({\n      ...d,\n      itemStyle: { color: colorFor(i, data.length) },\n    })),\n    roam: false,\n    nodeClick: false,\n    breadcrumb: { show: false },\n    label: {\n      show: true,\n      formatter: '{b}',\n      color: '#E6E6E6',\n      fontFamily: 'JetBrains Mono, monospace',\n      fontSize: 10,\n      fontWeight: 600,\n      textShadowColor: 'rgba(0,0,0,0.8)',\n      textShadowBlur: 4,\n    },\n    upperLabel: { show: false },\n    itemStyle: {\n      borderColor: 'rgba(16, 2, 23, 0.9)',\n      borderWidth: 2,\n      gapWidth: 2,\n    },\n    emphasis: {\n      itemStyle: {\n        shadowBlur: 20,\n        shadowColor: 'rgba(204, 10, 172, 0.6)',\n      },\n      label: { fontSize: 13 },\n    },\n    levels: [{\n      itemStyle: {\n        borderColor: 'rgba(16, 2, 23, 0.9)',\n        borderWidth: 2,\n        gapWidth: 2,\n      },\n    }],\n  }],\n};\n",
+            "getOption": "const frame = context.panel.data.series[0];\nif (!frame || !frame.fields) return { title: { text: 'No data', textStyle: { color: '#6F4D80' }, left: 'center', top: 'middle' } };\n\n// Extract validator addresses (from labels) and stake values\nconst valueField = frame.fields.find(f => f.type === 'number');\nif (!valueField) return {};\nconst values = valueField.values.buffer || valueField.values;\nconst labels = valueField.labels || {};\nconst valueLabels = valueField.config?.displayNameFromDS || '';\n\n// Each series in the frame has its own validator label. Since all validators\n// return a single value each, we have multiple series in frame.\nconst series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  // Label: try to find validator address in labels\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '…' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => b.value - a.value);\n\n// Build color scale magenta->purple based on rank\nconst colorFor = (i, total) => {\n  const t = i / Math.max(1, total - 1);\n  // interpolate from magenta (#CC0AAC) to purple (#5000BF)\n  const r1=0xCC, g1=0x0A, b1=0xAC;\n  const r2=0x50, g2=0x00, b2=0xBF;\n  const r=Math.round(r1 + (r2-r1)*t);\n  const g=Math.round(g1 + (g2-g1)*t);\n  const b=Math.round(b1 + (b2-b1)*t);\n  return 'rgb(' + r + ',' + g + ',' + b + ')';\n};\n\nconst totalStake = data.reduce((a, b) => a + b.value, 0);\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter, sans-serif', fontSize: 11 },\n    formatter: (info) => {\n      const pct = ((info.value / totalStake) * 100).toFixed(2);\n      return '<div style=\"padding:2px 0;\">'\n        + '<div style=\"color:#CC0AAC; font-weight:600; margin-bottom:4px;\">' + (info.data.fullName || info.name) + '</div>'\n        + '<div>Stake: <b>' + Number(info.value).toLocaleString('en-US') + '</b></div>'\n        + '<div>Share: <b>' + pct + '%</b></div>'\n        + '</div>';\n    },\n  },\n  series: [{\n    type: 'treemap',\n    data: data.map((d, i) => ({\n      ...d,\n      itemStyle: { color: colorFor(i, data.length) },\n    })),\n    roam: false,\n    nodeClick: false,\n    breadcrumb: { show: false },\n    label: {\n      show: true,\n      formatter: '{b}',\n      color: '#E6E6E6',\n      fontFamily: 'JetBrains Mono, monospace',\n      fontSize: 10,\n      fontWeight: 600,\n      textShadowColor: 'rgba(0,0,0,0.8)',\n      textShadowBlur: 4,\n    },\n    upperLabel: { show: false },\n    itemStyle: {\n      borderColor: 'rgba(16, 2, 23, 0.9)',\n      borderWidth: 2,\n      gapWidth: 2,\n    },\n    emphasis: {\n      itemStyle: {\n        shadowBlur: 20,\n        shadowColor: 'rgba(204, 10, 172, 0.6)',\n      },\n      label: { fontSize: 13 },\n    },\n    levels: [{\n      itemStyle: {\n        borderColor: 'rgba(16, 2, 23, 0.9)',\n        borderWidth: 2,\n        gapWidth: 2,\n      },\n    }],\n  }],\n};\n",
             "map": "",
             "renderer": "canvas",
             "themeEditor": {
@@ -1607,7 +1607,7 @@
           "description": "Horizontal bar ranking showing era points earned so far in the current era.\n\nSource: sxt_validator_era_points{address=...}\nValidators below the network average may be under-performing.",
           "gridPos": {
             "x": 12,
-            "y": 5,
+            "y": 13,
             "w": 12,
             "h": 14
           },
@@ -1624,7 +1624,7 @@
               "format": "full",
               "height": 600
             },
-            "getOption": "const series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '\u2026' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => a.value - b.value);  // ascending for horizontal bar\n\nreturn {\n  backgroundColor: 'transparent',\n  grid: { left: 110, right: 30, top: 10, bottom: 30, containLabel: false },\n  tooltip: {\n    trigger: 'item',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (p) => '<b style=\"color:#CC0AAC\">' + (p.data.fullName || p.name) + '</b><br/>Era points: <b>' + Number(p.value).toLocaleString('en-US') + '</b>',\n  },\n  xAxis: {\n    type: 'value',\n    axisLine:  { show: false },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n    splitLine: { lineStyle: { color: 'rgba(58, 24, 87, 0.4)', type: 'dashed' } },\n  },\n  yAxis: {\n    type: 'category',\n    data: data.map(d => d.name),\n    axisLine:  { lineStyle: { color: '#3A1857' } },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n  },\n  series: [{\n    type: 'bar',\n    data: data.map(d => ({ value: d.value, fullName: d.fullName })),\n    itemStyle: {\n      color: {\n        type: 'linear', x: 0, y: 0, x2: 1, y2: 0,\n        colorStops: [\n          { offset: 0, color: '#5000BF' },\n          { offset: 1, color: '#CC0AAC' },\n        ],\n      },\n      borderRadius: [0, 3, 3, 0],\n    },\n    emphasis: {\n      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(204, 10, 172, 0.6)' },\n    },\n    barWidth: '70%',\n  }],\n};\n",
+            "getOption": "const series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '…' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => a.value - b.value);  // ascending for horizontal bar\n\nreturn {\n  backgroundColor: 'transparent',\n  grid: { left: 110, right: 30, top: 10, bottom: 30, containLabel: false },\n  tooltip: {\n    trigger: 'item',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (p) => '<b style=\"color:#CC0AAC\">' + (p.data.fullName || p.name) + '</b><br/>Era points: <b>' + Number(p.value).toLocaleString('en-US') + '</b>',\n  },\n  xAxis: {\n    type: 'value',\n    axisLine:  { show: false },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n    splitLine: { lineStyle: { color: 'rgba(58, 24, 87, 0.4)', type: 'dashed' } },\n  },\n  yAxis: {\n    type: 'category',\n    data: data.map(d => d.name),\n    axisLine:  { lineStyle: { color: '#3A1857' } },\n    axisTick:  { show: false },\n    axisLabel: { color: '#A090B5', fontFamily: 'JetBrains Mono', fontSize: 9 },\n  },\n  series: [{\n    type: 'bar',\n    data: data.map(d => ({ value: d.value, fullName: d.fullName })),\n    itemStyle: {\n      color: {\n        type: 'linear', x: 0, y: 0, x2: 1, y2: 0,\n        colorStops: [\n          { offset: 0, color: '#5000BF' },\n          { offset: 1, color: '#CC0AAC' },\n        ],\n      },\n      borderRadius: [0, 3, 3, 0],\n    },\n    emphasis: {\n      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(204, 10, 172, 0.6)' },\n    },\n    barWidth: '70%',\n  }],\n};\n",
             "map": "",
             "renderer": "canvas",
             "themeEditor": {
@@ -1649,7 +1649,7 @@
           "description": "All registered validators with key metrics. Click column headers to sort.",
           "gridPos": {
             "x": 0,
-            "y": 19,
+            "y": 27,
             "w": 24,
             "h": 14
           },
@@ -1701,7 +1701,7 @@
             "editor": {
               "format": "auto"
             },
-            "getOption": "\nconst s = context.panel.data.series;\nconst W = context.panel.chart.getWidth();\n\nif (!s || !s.length) {\n  return {backgroundColor:'transparent', graphic:{elements:[\n    {type:'text', left:'center', top:'center', style:{text:'No validator data', fill:'#6F4D80', fontSize:14}}\n  ]}};\n}\n\n// Merge 6 Prometheus series by validator address label\n// Each series has refId: Stake/OwnStake/Commission/Nominators/Points/Active\nconst byValidator = new Map();\nconst refToKey = {\n  'Stake': 'stake', 'OwnStake': 'ownStake', 'Commission': 'commission',\n  'Nominators': 'nominators', 'Points': 'points', 'Active': 'active',\n};\n\ns.forEach(serie => {\n  const key = refToKey[serie.refId];\n  if (!key) return;\n  const numField = serie.fields.find(f => f.type === 'number');\n  if (!numField) return;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0];\n  if (!addr) return;\n  if (!byValidator.has(addr)) byValidator.set(addr, {addr});\n  byValidator.get(addr)[key] = Number(v);\n});\n\nconst rows = Array.from(byValidator.values()).map(r => ({\n  addr: r.addr,\n  stake: r.stake ?? 0,\n  ownStake: r.ownStake ?? 0,\n  commission: r.commission ?? 0,\n  nominators: r.nominators ?? 0,\n  points: r.points ?? 0,\n  active: r.active ?? 0,\n}));\n\nif (!rows.length) {\n  return {backgroundColor:'transparent', graphic:{elements:[\n    {type:'text', left:'center', top:'center', style:{text:'No validator data', fill:'#6F4D80', fontSize:14}}\n  ]}};\n}\n\n// Stats for header\nconst activeN = rows.filter(r => r.active === 1).length;\nconst waitingN = rows.filter(r => r.active === 0).length;\nconst totalStake = rows.reduce((a,r) => a + r.stake, 0);\nconst totalNominators = rows.reduce((a,r) => a + r.nominators, 0);\nconst avgCommission = rows.reduce((a,r) => a + r.commission, 0) / rows.length;\n\nconst fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});\nconst fmtPct = n => (n * 100).toFixed(1) + '%';\n\nconst shortAddr = a => a.length > 14 ? a.slice(0,8) + '\u2026' + a.slice(-4) : a;\n\nconst dom = context.panel.chart.getDom();\ndom._sxtRows = rows;\ndom._sxtSortCol = dom._sxtSortCol || 'stake';\ndom._sxtSortDir = dom._sxtSortDir || 'desc';\n\nfunction buildTable(sortCol, sortDir) {\n  const sorted = [...dom._sxtRows];\n  sorted.sort((a, b) => {\n    let cmp;\n    if (sortCol === 'addr') cmp = a.addr.localeCompare(b.addr);\n    else cmp = (a[sortCol] || 0) - (b[sortCol] || 0);\n    return sortDir === 'asc' ? cmp : -cmp;\n  });\n\n  const maxStake = Math.max(...sorted.map(r => r.stake));\n  const maxPoints = Math.max(...sorted.map(r => r.points));\n\n  const arrow = col => sortCol === col\n    ? (sortDir === 'asc' ? ' \u25b2' : ' \u25bc')\n    : ' \u25b4\u25be';\n  const headColor = col => sortCol === col ? '#CC0AAC' : '#A090B5';\n\n  // Header with summary stats\n  let h = '<div style=\"display:flex;gap:18px;padding:10px 16px;border-bottom:1px solid #3A1857;font-size:11px;color:#A090B5;font-family:Inter,sans-serif;\">';\n  h += '<span><span style=\"color:#00C853\">\u25cf</span> Active: <b style=\"color:#E6E6E6\">'+activeN+'</b></span>';\n  if (waitingN > 0) h += '<span><span style=\"color:#6F4D80\">\u25cf</span> Waiting: <b style=\"color:#E6E6E6\">'+waitingN+'</b></span>';\n  h += '<span style=\"margin-left:auto\">Total stake: <b style=\"color:#CC0AAC\">'+fmt(totalStake)+'</b> SXT</span>';\n  h += '<span>Nominators: <b style=\"color:#E6E6E6\">'+fmt(totalNominators)+'</b></span>';\n  h += '<span>Avg commission: <b style=\"color:#E6E6E6\">'+fmtPct(avgCommission)+'</b></span>';\n  h += '<span style=\"color:#6F4D80\">Total: '+sorted.length+'</span>';\n  h += '</div>';\n\n  // Table\n  h += '<table style=\"width:100%;border-collapse:collapse;font-size:12px;color:#E6E6E6;\">';\n  h += '<thead style=\"position:sticky;top:0;z-index:1;\">';\n  h += '<tr style=\"background:#100217;\">';\n  h += '<th data-sort=\"addr\"       style=\"cursor:pointer;user-select:none;text-align:left;padding:8px 14px;color:'+headColor('addr')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">VALIDATOR'+arrow('addr')+'</th>';\n  h += '<th data-sort=\"active\"     style=\"cursor:pointer;user-select:none;text-align:center;padding:8px 14px;color:'+headColor('active')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">STATUS'+arrow('active')+'</th>';\n  h += '<th data-sort=\"stake\"      style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('stake')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">TOTAL STAKE'+arrow('stake')+'</th>';\n  h += '<th data-sort=\"ownStake\"   style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('ownStake')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">OWN STAKE'+arrow('ownStake')+'</th>';\n  h += '<th data-sort=\"commission\" style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('commission')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">COMMISSION'+arrow('commission')+'</th>';\n  h += '<th data-sort=\"nominators\" style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('nominators')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">NOMINATORS'+arrow('nominators')+'</th>';\n  h += '<th data-sort=\"points\"     style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('points')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">ERA POINTS'+arrow('points')+'</th>';\n  h += '</tr></thead><tbody>';\n\n  for (let i = 0; i < sorted.length; i++) {\n    const r = sorted[i];\n    const bg = i % 2 === 0 ? 'transparent' : 'rgba(204,10,172,0.025)';\n    const stakePct = Math.min(100, (r.stake / maxStake) * 100);\n    const pointsPct = Math.min(100, (r.points / maxPoints) * 100);\n    const statusLabel = r.active === 1 ? 'Active' : 'Waiting';\n    const statusColor = r.active === 1 ? '#00C853' : '#6F4D80';\n    const statusIcon = r.active === 1 ? '\u25cf' : '\u25cb';\n\n    h += '<tr style=\"background:'+bg+'\" onmouseover=\"this.style.background=\\'rgba(204,10,172,0.08)\\'\" onmouseout=\"this.style.background=\\''+bg+'\\'\">';\n    h += '<td style=\"padding:7px 14px;font-family:JetBrains Mono,monospace;font-size:11px;color:#E6E6E6;\">'+shortAddr(r.addr)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:center;color:'+statusColor+';font-size:11px;font-weight:500;\">'+statusIcon+' '+statusLabel+'</td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;\"><div style=\"display:flex;align-items:center;justify-content:flex-end;gap:10px;\">';\n    h += '<div style=\"width:70px;height:4px;background:rgba(58,24,87,0.4);border-radius:2px;overflow:hidden;\"><div style=\"width:'+stakePct+'%;height:100%;background:linear-gradient(90deg,#5000BF,#CC0AAC);border-radius:2px;\"></div></div>';\n    h += '<span style=\"color:#E6E6E6;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;min-width:100px;text-align:right;\">'+fmt(r.stake)+'</span></div></td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmt(r.ownStake)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmtPct(r.commission)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmt(r.nominators)+'</td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;\"><div style=\"display:flex;align-items:center;justify-content:flex-end;gap:10px;\">';\n    h += '<div style=\"width:60px;height:4px;background:rgba(58,24,87,0.4);border-radius:2px;overflow:hidden;\"><div style=\"width:'+pointsPct+'%;height:100%;background:#CC0AAC;border-radius:2px;\"></div></div>';\n    h += '<span style=\"color:#E6E6E6;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;min-width:60px;text-align:right;\">'+fmt(r.points)+'</span></div></td>';\n\n    h += '</tr>';\n  }\n  h += '</tbody></table>';\n  return h;\n}\n\ndom._sxtBuildTable = buildTable;\nconst html = buildTable(dom._sxtSortCol, dom._sxtSortDir);\nconst _hash = html.length + '_' + dom._sxtSortCol + dom._sxtSortDir;\nif (dom._lastSxtHash === _hash) return {backgroundColor:'transparent'};\ndom._lastSxtHash = _hash;\n\nsetTimeout(() => {\n  let wrap = dom.querySelector('.sxt-val-wrap');\n  if (!wrap) {\n    wrap = document.createElement('div');\n    wrap.className = 'sxt-val-wrap';\n    wrap.style.cssText = 'position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;z-index:10;scrollbar-width:thin;scrollbar-color:#3A1857 transparent;';\n    dom.appendChild(wrap);\n  }\n  wrap.innerHTML = html;\n\n  dom._sxtAttachSort = function(w) {\n    w.querySelectorAll('[data-sort]').forEach(th => {\n      th.addEventListener('click', function() {\n        const col = this.getAttribute('data-sort');\n        if (dom._sxtSortCol === col) {\n          dom._sxtSortDir = dom._sxtSortDir === 'asc' ? 'desc' : 'asc';\n        } else {\n          dom._sxtSortCol = col;\n          dom._sxtSortDir = col === 'addr' ? 'asc' : 'desc';\n        }\n        w.innerHTML = dom._sxtBuildTable(dom._sxtSortCol, dom._sxtSortDir);\n        dom._lastSxtHash = null;\n        dom._sxtAttachSort(w);\n      });\n    });\n  };\n  dom._sxtAttachSort(wrap);\n}, 0);\n\nreturn {backgroundColor:'transparent'};\n",
+            "getOption": "\nconst s = context.panel.data.series;\nconst W = context.panel.chart.getWidth();\n\nif (!s || !s.length) {\n  return {backgroundColor:'transparent', graphic:{elements:[\n    {type:'text', left:'center', top:'center', style:{text:'No validator data', fill:'#6F4D80', fontSize:14}}\n  ]}};\n}\n\n// Merge 6 Prometheus series by validator address label\n// Each series has refId: Stake/OwnStake/Commission/Nominators/Points/Active\nconst byValidator = new Map();\nconst refToKey = {\n  'Stake': 'stake', 'OwnStake': 'ownStake', 'Commission': 'commission',\n  'Nominators': 'nominators', 'Points': 'points', 'Active': 'active',\n};\n\ns.forEach(serie => {\n  const key = refToKey[serie.refId];\n  if (!key) return;\n  const numField = serie.fields.find(f => f.type === 'number');\n  if (!numField) return;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0];\n  if (!addr) return;\n  if (!byValidator.has(addr)) byValidator.set(addr, {addr});\n  byValidator.get(addr)[key] = Number(v);\n});\n\nconst rows = Array.from(byValidator.values()).map(r => ({\n  addr: r.addr,\n  stake: r.stake ?? 0,\n  ownStake: r.ownStake ?? 0,\n  commission: r.commission ?? 0,\n  nominators: r.nominators ?? 0,\n  points: r.points ?? 0,\n  active: r.active ?? 0,\n}));\n\nif (!rows.length) {\n  return {backgroundColor:'transparent', graphic:{elements:[\n    {type:'text', left:'center', top:'center', style:{text:'No validator data', fill:'#6F4D80', fontSize:14}}\n  ]}};\n}\n\n// Stats for header\nconst activeN = rows.filter(r => r.active === 1).length;\nconst waitingN = rows.filter(r => r.active === 0).length;\nconst totalStake = rows.reduce((a,r) => a + r.stake, 0);\nconst totalNominators = rows.reduce((a,r) => a + r.nominators, 0);\nconst avgCommission = rows.reduce((a,r) => a + r.commission, 0) / rows.length;\n\nconst fmt = n => Number(n).toLocaleString('en-US', {maximumFractionDigits: 0});\nconst fmtPct = n => n.toFixed(1) + '%';\n\nconst shortAddr = a => a.length > 14 ? a.slice(0,8) + '…' + a.slice(-4) : a;\n\nconst dom = context.panel.chart.getDom();\ndom._sxtRows = rows;\ndom._sxtSortCol = dom._sxtSortCol || 'stake';\ndom._sxtSortDir = dom._sxtSortDir || 'desc';\n\nfunction buildTable(sortCol, sortDir) {\n  const sorted = [...dom._sxtRows];\n  sorted.sort((a, b) => {\n    let cmp;\n    if (sortCol === 'addr') cmp = a.addr.localeCompare(b.addr);\n    else cmp = (a[sortCol] || 0) - (b[sortCol] || 0);\n    return sortDir === 'asc' ? cmp : -cmp;\n  });\n\n  const maxStake = Math.max(...sorted.map(r => r.stake));\n  const maxPoints = Math.max(...sorted.map(r => r.points));\n\n  const arrow = col => sortCol === col\n    ? (sortDir === 'asc' ? ' ▲' : ' ▼')\n    : ' ▴▾';\n  const headColor = col => sortCol === col ? '#CC0AAC' : '#A090B5';\n\n  // Header with summary stats\n  let h = '<div style=\"display:flex;gap:18px;padding:10px 16px;border-bottom:1px solid #3A1857;font-size:11px;color:#A090B5;font-family:Inter,sans-serif;\">';\n  h += '<span><span style=\"color:#00C853\">●</span> Active: <b style=\"color:#E6E6E6\">'+activeN+'</b></span>';\n  if (waitingN > 0) h += '<span><span style=\"color:#6F4D80\">●</span> Waiting: <b style=\"color:#E6E6E6\">'+waitingN+'</b></span>';\n  h += '<span style=\"margin-left:auto\">Total stake: <b style=\"color:#CC0AAC\">'+fmt(totalStake)+'</b> SXT</span>';\n  h += '<span>Nominators: <b style=\"color:#E6E6E6\">'+fmt(totalNominators)+'</b></span>';\n  h += '<span>Avg commission: <b style=\"color:#E6E6E6\">'+fmtPct(avgCommission)+'</b></span>';\n  h += '<span style=\"color:#6F4D80\">Total: '+sorted.length+'</span>';\n  h += '</div>';\n\n  // Table\n  h += '<table style=\"width:100%;border-collapse:collapse;font-size:12px;color:#E6E6E6;\">';\n  h += '<thead style=\"position:sticky;top:0;z-index:1;\">';\n  h += '<tr style=\"background:#100217;\">';\n  h += '<th data-sort=\"addr\"       style=\"cursor:pointer;user-select:none;text-align:left;padding:8px 14px;color:'+headColor('addr')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">VALIDATOR'+arrow('addr')+'</th>';\n  h += '<th data-sort=\"active\"     style=\"cursor:pointer;user-select:none;text-align:center;padding:8px 14px;color:'+headColor('active')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">STATUS'+arrow('active')+'</th>';\n  h += '<th data-sort=\"stake\"      style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('stake')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">TOTAL STAKE'+arrow('stake')+'</th>';\n  h += '<th data-sort=\"ownStake\"   style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('ownStake')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">OWN STAKE'+arrow('ownStake')+'</th>';\n  h += '<th data-sort=\"commission\" style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('commission')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">COMMISSION'+arrow('commission')+'</th>';\n  h += '<th data-sort=\"nominators\" style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('nominators')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">NOMINATORS'+arrow('nominators')+'</th>';\n  h += '<th data-sort=\"points\"     style=\"cursor:pointer;user-select:none;text-align:right;padding:8px 14px;color:'+headColor('points')+';font-size:10px;font-weight:600;letter-spacing:1px;border-bottom:1px solid #3A1857;\">ERA POINTS'+arrow('points')+'</th>';\n  h += '</tr></thead><tbody>';\n\n  for (let i = 0; i < sorted.length; i++) {\n    const r = sorted[i];\n    const bg = i % 2 === 0 ? 'transparent' : 'rgba(204,10,172,0.025)';\n    const stakePct = Math.min(100, (r.stake / maxStake) * 100);\n    const pointsPct = Math.min(100, (r.points / maxPoints) * 100);\n    const statusLabel = r.active === 1 ? 'Active' : 'Waiting';\n    const statusColor = r.active === 1 ? '#00C853' : '#6F4D80';\n    const statusIcon = r.active === 1 ? '●' : '○';\n\n    h += '<tr style=\"background:'+bg+'\" onmouseover=\"this.style.background=\\'rgba(204,10,172,0.08)\\'\" onmouseout=\"this.style.background=\\''+bg+'\\'\">';\n    h += '<td style=\"padding:7px 14px;font-family:JetBrains Mono,monospace;font-size:11px;color:#E6E6E6;\">'+shortAddr(r.addr)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:center;color:'+statusColor+';font-size:11px;font-weight:500;\">'+statusIcon+' '+statusLabel+'</td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;\"><div style=\"display:flex;align-items:center;justify-content:flex-end;gap:10px;\">';\n    h += '<div style=\"width:70px;height:4px;background:rgba(58,24,87,0.4);border-radius:2px;overflow:hidden;\"><div style=\"width:'+stakePct+'%;height:100%;background:linear-gradient(90deg,#5000BF,#CC0AAC);border-radius:2px;\"></div></div>';\n    h += '<span style=\"color:#E6E6E6;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;min-width:100px;text-align:right;\">'+fmt(r.stake)+'</span></div></td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmt(r.ownStake)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmtPct(r.commission)+'</td>';\n    h += '<td style=\"padding:7px 14px;text-align:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#A090B5;\">'+fmt(r.nominators)+'</td>';\n\n    h += '<td style=\"padding:7px 14px;text-align:right;\"><div style=\"display:flex;align-items:center;justify-content:flex-end;gap:10px;\">';\n    h += '<div style=\"width:60px;height:4px;background:rgba(58,24,87,0.4);border-radius:2px;overflow:hidden;\"><div style=\"width:'+pointsPct+'%;height:100%;background:#CC0AAC;border-radius:2px;\"></div></div>';\n    h += '<span style=\"color:#E6E6E6;font-family:JetBrains Mono,monospace;font-size:11px;font-weight:600;min-width:60px;text-align:right;\">'+fmt(r.points)+'</span></div></td>';\n\n    h += '</tr>';\n  }\n  h += '</tbody></table>';\n  return h;\n}\n\ndom._sxtBuildTable = buildTable;\nconst html = buildTable(dom._sxtSortCol, dom._sxtSortDir);\nconst _hash = html.length + '_' + dom._sxtSortCol + dom._sxtSortDir;\nif (dom._lastSxtHash === _hash) return {backgroundColor:'transparent'};\ndom._lastSxtHash = _hash;\n\nsetTimeout(() => {\n  let wrap = dom.querySelector('.sxt-val-wrap');\n  if (!wrap) {\n    wrap = document.createElement('div');\n    wrap.className = 'sxt-val-wrap';\n    wrap.style.cssText = 'position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;z-index:10;scrollbar-width:thin;scrollbar-color:#3A1857 transparent;';\n    dom.appendChild(wrap);\n  }\n  wrap.innerHTML = html;\n\n  dom._sxtAttachSort = function(w) {\n    w.querySelectorAll('[data-sort]').forEach(th => {\n      th.addEventListener('click', function() {\n        const col = this.getAttribute('data-sort');\n        if (dom._sxtSortCol === col) {\n          dom._sxtSortDir = dom._sxtSortDir === 'asc' ? 'desc' : 'asc';\n        } else {\n          dom._sxtSortCol = col;\n          dom._sxtSortDir = col === 'addr' ? 'asc' : 'desc';\n        }\n        w.innerHTML = dom._sxtBuildTable(dom._sxtSortCol, dom._sxtSortDir);\n        dom._lastSxtHash = null;\n        dom._sxtAttachSort(w);\n      });\n    });\n  };\n  dom._sxtAttachSort(wrap);\n}, 0);\n\nreturn {backgroundColor:'transparent'};\n",
             "map": "none",
             "renderer": "canvas",
             "themeEditor": {
@@ -1727,7 +1727,7 @@
           "description": "Pie/donut showing relative stake share per validator in USD terms.\n\nSource: sxt_validator_total_stake_usd\nNakamoto coefficient quick-view: how many top validators control >33%.",
           "gridPos": {
             "x": 0,
-            "y": 33,
+            "y": 41,
             "w": 12,
             "h": 12
           },
@@ -1744,7 +1744,7 @@
               "format": "full",
               "height": 600
             },
-            "getOption": "const series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '\u2026' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => b.value - a.value);\n\n// Top 10 + \"Others\" aggregation\nconst TOP = 10;\nlet pieData = data;\nif (data.length > TOP) {\n  const top = data.slice(0, TOP);\n  const others = data.slice(TOP).reduce((sum, d) => sum + d.value, 0);\n  pieData = [...top, { name: 'Others (' + (data.length - TOP) + ')', fullName: 'Others', value: others }];\n}\n\nconst colorFor = (i, total) => {\n  const t = i / Math.max(1, total - 1);\n  const r1=0xCC, g1=0x0A, b1=0xAC;\n  const r2=0x50, g2=0x00, b2=0xBF;\n  const r=Math.round(r1 + (r2-r1)*t);\n  const g=Math.round(g1 + (g2-g1)*t);\n  const b=Math.round(b1 + (b2-b1)*t);\n  return 'rgb(' + r + ',' + g + ',' + b + ')';\n};\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    trigger: 'item',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (p) => '<b style=\"color:#CC0AAC\">' + (p.data.fullName || p.name) + '</b><br/>Stake: <b>$' + Number(p.value).toLocaleString('en-US') + '</b><br/>Share: <b>' + p.percent + '%</b>',\n  },\n  series: [{\n    type: 'pie',\n    radius: ['40%', '70%'],\n    center: ['50%', '50%'],\n    avoidLabelOverlap: true,\n    itemStyle: {\n      borderColor: 'rgba(16, 2, 23, 0.9)',\n      borderWidth: 2,\n    },\n    label: {\n      show: true,\n      color: '#E6E6E6',\n      fontFamily: 'JetBrains Mono, monospace',\n      fontSize: 9,\n      formatter: '{b}',\n    },\n    labelLine: { lineStyle: { color: '#6F4D80' } },\n    emphasis: {\n      itemStyle: { shadowBlur: 15, shadowColor: 'rgba(204, 10, 172, 0.6)' },\n      label: { fontSize: 11, fontWeight: 'bold' },\n    },\n    data: pieData.map((d, i) => ({\n      ...d,\n      itemStyle: { color: colorFor(i, pieData.length) },\n    })),\n  }],\n};\n",
+            "getOption": "const series = context.panel.data.series;\nconst data = series.map((s, i) => {\n  const numField = s.fields.find(f => f.type === 'number');\n  if (!numField) return null;\n  const v = (numField.values.buffer || numField.values)[0];\n  const lbls = numField.labels || {};\n  const addr = lbls.validator || lbls.address || lbls.account || lbls.id ||\n               Object.values(lbls)[0] || s.refId || ('v' + i);\n  return {\n    name: addr.length > 8 ? addr.slice(0, 6) + '…' + addr.slice(-4) : addr,\n    fullName: addr,\n    value: Number(v),\n  };\n}).filter(Boolean).sort((a, b) => b.value - a.value);\n\n// Top 10 + \"Others\" aggregation\nconst TOP = 10;\nlet pieData = data;\nif (data.length > TOP) {\n  const top = data.slice(0, TOP);\n  const others = data.slice(TOP).reduce((sum, d) => sum + d.value, 0);\n  pieData = [...top, { name: 'Others (' + (data.length - TOP) + ')', fullName: 'Others', value: others }];\n}\n\nconst colorFor = (i, total) => {\n  const t = i / Math.max(1, total - 1);\n  const r1=0xCC, g1=0x0A, b1=0xAC;\n  const r2=0x50, g2=0x00, b2=0xBF;\n  const r=Math.round(r1 + (r2-r1)*t);\n  const g=Math.round(g1 + (g2-g1)*t);\n  const b=Math.round(b1 + (b2-b1)*t);\n  return 'rgb(' + r + ',' + g + ',' + b + ')';\n};\n\nreturn {\n  backgroundColor: 'transparent',\n  tooltip: {\n    trigger: 'item',\n    backgroundColor: 'rgba(36, 9, 53, 0.95)',\n    borderColor: '#5000BF',\n    borderWidth: 1,\n    textStyle: { color: '#E6E6E6', fontFamily: 'Inter' },\n    formatter: (p) => '<b style=\"color:#CC0AAC\">' + (p.data.fullName || p.name) + '</b><br/>Stake: <b>$' + Number(p.value).toLocaleString('en-US') + '</b><br/>Share: <b>' + p.percent + '%</b>',\n  },\n  series: [{\n    type: 'pie',\n    radius: ['40%', '70%'],\n    center: ['50%', '50%'],\n    avoidLabelOverlap: true,\n    itemStyle: {\n      borderColor: 'rgba(16, 2, 23, 0.9)',\n      borderWidth: 2,\n    },\n    label: {\n      show: true,\n      color: '#E6E6E6',\n      fontFamily: 'JetBrains Mono, monospace',\n      fontSize: 9,\n      formatter: '{b}',\n    },\n    labelLine: { lineStyle: { color: '#6F4D80' } },\n    emphasis: {\n      itemStyle: { shadowBlur: 15, shadowColor: 'rgba(204, 10, 172, 0.6)' },\n      label: { fontSize: 11, fontWeight: 'bold' },\n    },\n    data: pieData.map((d, i) => ({\n      ...d,\n      itemStyle: { color: colorFor(i, pieData.length) },\n    })),\n  }],\n};\n",
             "map": "",
             "renderer": "canvas",
             "themeEditor": {
@@ -1769,7 +1769,7 @@
           "description": "Historical SXT rewards distributed per era across the entire network.\n\nSource: sxt.v_era_rewards (ClickHouse view, computed from ErasValidatorReward).\nSteady = healthy network inflation; drops indicate missed rewards.",
           "gridPos": {
             "x": 12,
-            "y": 33,
+            "y": 41,
             "w": 12,
             "h": 12
           },
@@ -1807,10 +1807,10 @@
           "type": "volkovlabs-echarts-panel",
           "title": "Network stake changes per era",
           "datasource": "ClickHouse",
-          "description": "Per-era change in total network stake (sum across all validators).\n\nSource: sxt.v_delegation_changes (ClickHouse view, derived from delegation_snapshots). Computed as delta of sum(total_stake) between consecutive eras.\n\nNote: this is the NET aggregate change. Internal redistributions among validators (A loses 1k SXT, B gains 1k SXT) cancel out at this level \u2014 this panel reflects new stake entering or leaving the protocol as a whole, not churn between validators.",
+          "description": "Per-era change in total network stake (sum across all validators).\n\nSource: sxt.v_delegation_changes (ClickHouse view, derived from delegation_snapshots). Computed as delta of sum(total_stake) between consecutive eras.\n\nNote: this is the NET aggregate change. Internal redistributions among validators (A loses 1k SXT, B gains 1k SXT) cancel out at this level — this panel reflects new stake entering or leaving the protocol as a whole, not churn between validators.",
           "gridPos": {
             "x": 0,
-            "y": 45,
+            "y": 53,
             "w": 24,
             "h": 10
           },
@@ -1843,28 +1843,14 @@
             "defaults": {},
             "overrides": []
           }
-        }
-      ],
-      "description": "All validators on-chain: totals, stake distribution, era points, era rewards history, delegation flows, full sortable table."
-    },
-    {
-      "title": "\u2b22 Validator economics",
-      "type": "row",
-      "collapsed": true,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 3
-      },
-      "panels": [
+        },
         {
           "title": "Estimated APR per validator",
           "type": "volkovlabs-echarts-panel",
           "datasource": "Prometheus",
           "gridPos": {
             "x": 0,
-            "y": 1,
+            "y": 5,
             "w": 12,
             "h": 8
           },
@@ -1883,7 +1869,7 @@
             "overrides": []
           },
           "options": {
-            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#00BCD4\",\"#CC0AAC\",\"#7C4DFF\",\n                 \"#B388FF\",\"#7C4DFF\",\"#B388FF\",\"#A090B5\",\"#B388FF\",\n                 \"#BA55D3\",\"#FF77AA\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.labels && numField.labels.address)\n              || (numField.config && numField.config.displayNameFromDS)\n              || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({\n    name: lbl, type: \"line\", smooth: true, showSymbol: false, sampling: \"lttb\",\n    lineStyle: { width: 1.8, color: color },\n    itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } },\n    data: points,\n  });\n});\n\n// === Estado de hover compartido entre re-renders ===\n// Lo colgamos del chart instance; sobrevive a setOption pero no a creaci\u00f3n de chart nuevo.\nconst chart = context.panel.chart;\nif (chart && !chart.__sxtHoverInit) {\n  chart.__sxtHoverIndex = -1;\n  chart.__sxtHoverInit = true;\n  chart.on(\"mouseover\", (params) => {\n    if (params && typeof params.seriesIndex === \"number\" && params.seriesIndex !== chart.__sxtHoverIndex) {\n      chart.__sxtHoverIndex = params.seriesIndex;\n      // Trigger re-render del tooltip si ya est\u00e1 abierto\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n  chart.on(\"mouseout\", () => {\n    if (chart.__sxtHoverIndex !== -1) {\n      chart.__sxtHoverIndex = -1;\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n}\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 70, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    pageTextStyle: { color: \"#A090B5\" }, pageIconColor: \"#5000BF\",\n    pageIconInactiveColor: \"#3A1857\" },\n  tooltip: {\n    trigger: \"axis\",\n    appendToBody: true,\n    confine: false,\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    padding: [8, 12],\n    extraCssText: \"max-width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(80,0,191,0.3); border-radius: 4px;\",\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\", fontSize: 11 },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    order: \"valueDesc\",\n    formatter: (params) => {\n      if (!params || !params.length) return \"\";\n      const hoverIdx = (chart && typeof chart.__sxtHoverIndex === \"number\") ? chart.__sxtHoverIndex : -1;\n      const ts = new Date(params[0].axisValue);\n      const tsStr = ts.toLocaleString(\"en-US\", {\n        month: \"short\", day: \"2-digit\", hour: \"2-digit\", minute: \"2-digit\"\n      });\n      let html = '<div style=\"font-family:JetBrains Mono,monospace; font-size:10px; color:#A090B5; margin-bottom:6px; border-bottom:1px solid #3A1857; padding-bottom:4px;\">' + tsStr + '</div>';\n      params.forEach((p) => {\n        const isFocused = (hoverIdx >= 0 && p.seriesIndex === hoverIdx);\n        const formatted = ((v) => Number(v).toLocaleString(\"en-US\",{minimumFractionDigits:2,maximumFractionDigits:2})+\" %\")(p.value[1]);\n        const nameColor = isFocused ? \"#CC0AAC\" : \"#E6E6E6\";\n        const weight = isFocused ? \"700\" : \"400\";\n        const bg = isFocused ? \"background:rgba(204,10,172,0.18); border-radius:3px; padding:3px 6px; margin:2px -6px;\" : \"padding:2px 0;\";\n        html += '<div style=\"display:flex; justify-content:space-between; align-items:center; gap:12px; ' + bg + '\">' +\n          '<span style=\"display:flex; align-items:center; gap:6px;\">' +\n            '<span style=\"display:inline-block; width:8px; height:8px; border-radius:50%; background:' + p.color + ';\"></span>' +\n            '<span style=\"color:' + nameColor + '; font-weight:' + weight + ';\">' + p.seriesName + '</span>' +\n          '</span>' +\n          '<span style=\"color:' + nameColor + '; font-family:JetBrains Mono,monospace; font-weight:' + weight + ';\">' + formatted + '</span>' +\n        '</div>';\n      });\n      return html;\n    },\n  },\n  xAxis: { type: \"time\", axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true, axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => v.toFixed(1)+\" %\" },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#00BCD4\",\"#CC0AAC\",\"#7C4DFF\",\n                 \"#B388FF\",\"#7C4DFF\",\"#B388FF\",\"#A090B5\",\"#B388FF\",\n                 \"#BA55D3\",\"#FF77AA\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.labels && numField.labels.address)\n              || (numField.config && numField.config.displayNameFromDS)\n              || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({\n    name: lbl, type: \"line\", smooth: true, showSymbol: false, sampling: \"lttb\",\n    lineStyle: { width: 1.8, color: color },\n    itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } },\n    data: points,\n  });\n});\n\n// === Estado de hover compartido entre re-renders ===\n// Lo colgamos del chart instance; sobrevive a setOption pero no a creación de chart nuevo.\nconst chart = context.panel.chart;\nif (chart && !chart.__sxtHoverInit) {\n  chart.__sxtHoverIndex = -1;\n  chart.__sxtHoverInit = true;\n  chart.on(\"mouseover\", (params) => {\n    if (params && typeof params.seriesIndex === \"number\" && params.seriesIndex !== chart.__sxtHoverIndex) {\n      chart.__sxtHoverIndex = params.seriesIndex;\n      // Trigger re-render del tooltip si ya está abierto\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n  chart.on(\"mouseout\", () => {\n    if (chart.__sxtHoverIndex !== -1) {\n      chart.__sxtHoverIndex = -1;\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n}\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 70, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    pageTextStyle: { color: \"#A090B5\" }, pageIconColor: \"#5000BF\",\n    pageIconInactiveColor: \"#3A1857\" },\n  tooltip: {\n    trigger: \"axis\",\n    appendToBody: true,\n    confine: false,\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    padding: [8, 12],\n    extraCssText: \"max-width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(80,0,191,0.3); border-radius: 4px;\",\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\", fontSize: 11 },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    order: \"valueDesc\",\n    formatter: (params) => {\n      if (!params || !params.length) return \"\";\n      const hoverIdx = (chart && typeof chart.__sxtHoverIndex === \"number\") ? chart.__sxtHoverIndex : -1;\n      const ts = new Date(params[0].axisValue);\n      const tsStr = ts.toLocaleString(\"en-US\", {\n        month: \"short\", day: \"2-digit\", hour: \"2-digit\", minute: \"2-digit\"\n      });\n      let html = '<div style=\"font-family:JetBrains Mono,monospace; font-size:10px; color:#A090B5; margin-bottom:6px; border-bottom:1px solid #3A1857; padding-bottom:4px;\">' + tsStr + '</div>';\n      params.forEach((p) => {\n        const isFocused = (hoverIdx >= 0 && p.seriesIndex === hoverIdx);\n        const formatted = ((v) => Number(v).toLocaleString(\"en-US\",{minimumFractionDigits:2,maximumFractionDigits:2})+\" %\")(p.value[1]);\n        const nameColor = isFocused ? \"#CC0AAC\" : \"#E6E6E6\";\n        const weight = isFocused ? \"700\" : \"400\";\n        const bg = isFocused ? \"background:rgba(204,10,172,0.18); border-radius:3px; padding:3px 6px; margin:2px -6px;\" : \"padding:2px 0;\";\n        html += '<div style=\"display:flex; justify-content:space-between; align-items:center; gap:12px; ' + bg + '\">' +\n          '<span style=\"display:flex; align-items:center; gap:6px;\">' +\n            '<span style=\"display:inline-block; width:8px; height:8px; border-radius:50%; background:' + p.color + ';\"></span>' +\n            '<span style=\"color:' + nameColor + '; font-weight:' + weight + ';\">' + p.seriesName + '</span>' +\n          '</span>' +\n          '<span style=\"color:' + nameColor + '; font-family:JetBrains Mono,monospace; font-weight:' + weight + ';\">' + formatted + '</span>' +\n        '</div>';\n      });\n      return html;\n    },\n  },\n  xAxis: { type: \"time\", axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true, axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => v.toFixed(1)+\" %\" },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
             "renderer": "canvas",
             "themeEditor": {
               "name": "default"
@@ -1908,7 +1894,7 @@
           "datasource": "Prometheus",
           "gridPos": {
             "x": 12,
-            "y": 1,
+            "y": 5,
             "w": 12,
             "h": 8
           },
@@ -1927,7 +1913,7 @@
             "overrides": []
           },
           "options": {
-            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#00BCD4\",\"#CC0AAC\",\"#7C4DFF\",\n                 \"#B388FF\",\"#7C4DFF\",\"#B388FF\",\"#A090B5\",\"#B388FF\",\n                 \"#BA55D3\",\"#FF77AA\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.labels && numField.labels.address)\n              || (numField.config && numField.config.displayNameFromDS)\n              || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({\n    name: lbl, type: \"line\", smooth: true, showSymbol: false, sampling: \"lttb\",\n    lineStyle: { width: 1.8, color: color },\n    itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } },\n    data: points,\n  });\n});\n\n// === Estado de hover compartido entre re-renders ===\n// Lo colgamos del chart instance; sobrevive a setOption pero no a creaci\u00f3n de chart nuevo.\nconst chart = context.panel.chart;\nif (chart && !chart.__sxtHoverInit) {\n  chart.__sxtHoverIndex = -1;\n  chart.__sxtHoverInit = true;\n  chart.on(\"mouseover\", (params) => {\n    if (params && typeof params.seriesIndex === \"number\" && params.seriesIndex !== chart.__sxtHoverIndex) {\n      chart.__sxtHoverIndex = params.seriesIndex;\n      // Trigger re-render del tooltip si ya est\u00e1 abierto\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n  chart.on(\"mouseout\", () => {\n    if (chart.__sxtHoverIndex !== -1) {\n      chart.__sxtHoverIndex = -1;\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n}\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 70, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    pageTextStyle: { color: \"#A090B5\" }, pageIconColor: \"#5000BF\",\n    pageIconInactiveColor: \"#3A1857\" },\n  tooltip: {\n    trigger: \"axis\",\n    appendToBody: true,\n    confine: false,\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    padding: [8, 12],\n    extraCssText: \"max-width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(80,0,191,0.3); border-radius: 4px;\",\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\", fontSize: 11 },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    order: \"valueDesc\",\n    formatter: (params) => {\n      if (!params || !params.length) return \"\";\n      const hoverIdx = (chart && typeof chart.__sxtHoverIndex === \"number\") ? chart.__sxtHoverIndex : -1;\n      const ts = new Date(params[0].axisValue);\n      const tsStr = ts.toLocaleString(\"en-US\", {\n        month: \"short\", day: \"2-digit\", hour: \"2-digit\", minute: \"2-digit\"\n      });\n      let html = '<div style=\"font-family:JetBrains Mono,monospace; font-size:10px; color:#A090B5; margin-bottom:6px; border-bottom:1px solid #3A1857; padding-bottom:4px;\">' + tsStr + '</div>';\n      params.forEach((p) => {\n        const isFocused = (hoverIdx >= 0 && p.seriesIndex === hoverIdx);\n        const formatted = ((v) => Number(v).toLocaleString(\"en-US\",{maximumFractionDigits:0})+\" SXT\")(p.value[1]);\n        const nameColor = isFocused ? \"#CC0AAC\" : \"#E6E6E6\";\n        const weight = isFocused ? \"700\" : \"400\";\n        const bg = isFocused ? \"background:rgba(204,10,172,0.18); border-radius:3px; padding:3px 6px; margin:2px -6px;\" : \"padding:2px 0;\";\n        html += '<div style=\"display:flex; justify-content:space-between; align-items:center; gap:12px; ' + bg + '\">' +\n          '<span style=\"display:flex; align-items:center; gap:6px;\">' +\n            '<span style=\"display:inline-block; width:8px; height:8px; border-radius:50%; background:' + p.color + ';\"></span>' +\n            '<span style=\"color:' + nameColor + '; font-weight:' + weight + ';\">' + p.seriesName + '</span>' +\n          '</span>' +\n          '<span style=\"color:' + nameColor + '; font-family:JetBrains Mono,monospace; font-weight:' + weight + ';\">' + formatted + '</span>' +\n        '</div>';\n      });\n      return html;\n    },\n  },\n  xAxis: { type: \"time\", axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true, axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => Number(v).toLocaleString(\"en-US\",{maximumFractionDigits:0}) },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
+            "getOption": "\nconst palette = [\"#5000BF\",\"#CC0AAC\",\"#00BCD4\",\"#CC0AAC\",\"#7C4DFF\",\n                 \"#B388FF\",\"#7C4DFF\",\"#B388FF\",\"#A090B5\",\"#B388FF\",\n                 \"#BA55D3\",\"#FF77AA\"];\nconst series = [];\n(context.panel.data.series || []).forEach((s, i) => {\n  const numField = s.fields.find((f) => f.type === \"number\");\n  const timeField = s.fields.find((f) => f.type === \"time\");\n  if (!numField || !timeField) return;\n  const values = numField.values.buffer || numField.values;\n  const times  = timeField.values.buffer || timeField.values;\n  if (!values || !times || values.length === 0) return;\n  const points = [];\n  for (let k = 0; k < times.length; k++) {\n    const v = values[k];\n    if (v === null || v === undefined || Number.isNaN(v)) continue;\n    points.push([times[k], v]);\n  }\n  if (points.length === 0) return;\n  const lbl = (numField.labels && numField.labels.address)\n              || (numField.config && numField.config.displayNameFromDS)\n              || s.name || (\"series-\" + i);\n  const color = palette[series.length % palette.length];\n  series.push({\n    name: lbl, type: \"line\", smooth: true, showSymbol: false, sampling: \"lttb\",\n    lineStyle: { width: 1.8, color: color },\n    itemStyle: { color: color },\n    emphasis: { focus: \"series\", lineStyle: { width: 2.8 } },\n    data: points,\n  });\n});\n\n// === Estado de hover compartido entre re-renders ===\n// Lo colgamos del chart instance; sobrevive a setOption pero no a creación de chart nuevo.\nconst chart = context.panel.chart;\nif (chart && !chart.__sxtHoverInit) {\n  chart.__sxtHoverIndex = -1;\n  chart.__sxtHoverInit = true;\n  chart.on(\"mouseover\", (params) => {\n    if (params && typeof params.seriesIndex === \"number\" && params.seriesIndex !== chart.__sxtHoverIndex) {\n      chart.__sxtHoverIndex = params.seriesIndex;\n      // Trigger re-render del tooltip si ya está abierto\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n  chart.on(\"mouseout\", () => {\n    if (chart.__sxtHoverIndex !== -1) {\n      chart.__sxtHoverIndex = -1;\n      try { chart.setOption({}, { lazyUpdate: true }); } catch(e) {}\n    }\n  });\n}\n\nreturn {\n  backgroundColor: \"transparent\",\n  grid: { left: 60, right: 20, top: 30, bottom: 70, containLabel: true },\n  legend: { type: \"scroll\", bottom: 0,\n    textStyle: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    pageTextStyle: { color: \"#A090B5\" }, pageIconColor: \"#5000BF\",\n    pageIconInactiveColor: \"#3A1857\" },\n  tooltip: {\n    trigger: \"axis\",\n    appendToBody: true,\n    confine: false,\n    backgroundColor: \"rgba(36, 9, 53, 0.97)\",\n    borderColor: \"#5000BF\",\n    borderWidth: 1,\n    padding: [8, 12],\n    extraCssText: \"max-width: 320px; max-height: 400px; overflow-y: auto; box-shadow: 0 4px 20px rgba(80,0,191,0.3); border-radius: 4px;\",\n    textStyle: { color: \"#E6E6E6\", fontFamily: \"Inter, sans-serif\", fontSize: 11 },\n    axisPointer: { lineStyle: { color: \"#5000BF\", type: \"dashed\" } },\n    order: \"valueDesc\",\n    formatter: (params) => {\n      if (!params || !params.length) return \"\";\n      const hoverIdx = (chart && typeof chart.__sxtHoverIndex === \"number\") ? chart.__sxtHoverIndex : -1;\n      const ts = new Date(params[0].axisValue);\n      const tsStr = ts.toLocaleString(\"en-US\", {\n        month: \"short\", day: \"2-digit\", hour: \"2-digit\", minute: \"2-digit\"\n      });\n      let html = '<div style=\"font-family:JetBrains Mono,monospace; font-size:10px; color:#A090B5; margin-bottom:6px; border-bottom:1px solid #3A1857; padding-bottom:4px;\">' + tsStr + '</div>';\n      params.forEach((p) => {\n        const isFocused = (hoverIdx >= 0 && p.seriesIndex === hoverIdx);\n        const formatted = ((v) => Number(v).toLocaleString(\"en-US\",{maximumFractionDigits:0})+\" SXT\")(p.value[1]);\n        const nameColor = isFocused ? \"#CC0AAC\" : \"#E6E6E6\";\n        const weight = isFocused ? \"700\" : \"400\";\n        const bg = isFocused ? \"background:rgba(204,10,172,0.18); border-radius:3px; padding:3px 6px; margin:2px -6px;\" : \"padding:2px 0;\";\n        html += '<div style=\"display:flex; justify-content:space-between; align-items:center; gap:12px; ' + bg + '\">' +\n          '<span style=\"display:flex; align-items:center; gap:6px;\">' +\n            '<span style=\"display:inline-block; width:8px; height:8px; border-radius:50%; background:' + p.color + ';\"></span>' +\n            '<span style=\"color:' + nameColor + '; font-weight:' + weight + ';\">' + p.seriesName + '</span>' +\n          '</span>' +\n          '<span style=\"color:' + nameColor + '; font-family:JetBrains Mono,monospace; font-weight:' + weight + ';\">' + formatted + '</span>' +\n        '</div>';\n      });\n      return html;\n    },\n  },\n  xAxis: { type: \"time\", axisLine: { lineStyle: { color: \"#3A1857\" } },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"Inter\", fontSize: 10 },\n    splitLine: { show: false } },\n  yAxis: { type: \"value\", scale: true, axisLine: { show: false }, axisTick: { show: false },\n    axisLabel: { color: \"#A090B5\", fontFamily: \"JetBrains Mono\", fontSize: 10,\n      formatter: (v) => Number(v).toLocaleString(\"en-US\",{maximumFractionDigits:0}) },\n    splitLine: { lineStyle: { color: \"rgba(58, 24, 87, 0.4)\", type: \"dashed\" } } },\n  series: series,\n};\n",
             "renderer": "canvas",
             "themeEditor": {
               "name": "default"
@@ -1945,9 +1931,23 @@
             "map": ""
           },
           "description": "Time-series view of each validator's total stake (SXT) evolution.\n\nSource: sxt_validator_total_stake, range query\nGrowth trends, slashing events, or nominator exits become visible here."
-        },
+        }
+      ],
+      "description": "All validators on-chain: totals, stake distribution, era points, era rewards history, delegation flows, full sortable table."
+    },
+    {
+      "title": "⬢ Validator economics",
+      "type": "row",
+      "collapsed": true,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 3
+      },
+      "panels": [
         {
-          "title": "\u2605 Latest era reward",
+          "title": "★ Latest era reward",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
@@ -1983,7 +1983,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">LATEST ERA REWARD (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-era-reward\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-era-reward[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">LATEST ERA REWARD (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-era-reward\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-era-reward[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2008,7 +2008,7 @@
           "description": "Estimated reward for this validator in the current era, in SXT.\n\nSource: sxt_validator_estimated_era_reward{address=${validator}}\nExtrapolated from era points accrued so far. Finalizes at era end."
         },
         {
-          "title": "\u2605 APR",
+          "title": "★ APR",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "Prometheus",
           "gridPos": {
@@ -2066,10 +2066,10 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Annualized percentage return for this validator, net of commission.\n\nSource: sxt_validator_estimated_apr{address=${validator}}\nEstimate only \u2014 actual yield depends on uptime and era point performance."
+          "description": "Annualized percentage return for this validator, net of commission.\n\nSource: sxt_validator_estimated_apr{address=${validator}}\nEstimate only — actual yield depends on uptime and era point performance."
         },
         {
-          "title": "\u2605 84-day commission",
+          "title": "★ 84-day commission",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2104,7 +2104,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">84-DAY COMMISSION (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-84-comm\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-84-comm[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">84-DAY COMMISSION (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-84-comm\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-84-comm[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2129,7 +2129,7 @@
           "description": "Total commission earned over the last 84 eras (~21 days at 6h/era).\n\nSource: sxt.v_validator_earnings (ClickHouse view, sum of commission_sxt)\nReflects revenue collected from nominators' rewards."
         },
         {
-          "title": "\u2605 84-day total earned",
+          "title": "★ 84-day total earned",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2164,7 +2164,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">84-DAY TOTAL (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-84-total\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-84-total[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">84-DAY TOTAL (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-84-total\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-84-total[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2189,7 +2189,7 @@
           "description": "Total rewards (commission + own yield) for the validator over the last 84 eras.\n\nSource: sxt.v_validator_earnings (sum of total_earned_sxt)\nGross income before operational costs."
         },
         {
-          "title": "\u2605 Monthly commission",
+          "title": "★ Monthly commission",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2224,7 +2224,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY COMMISSION (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-comm\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-comm[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY COMMISSION (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-comm\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-comm[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2249,7 +2249,7 @@
           "description": "Commission earned in the current calendar month, in SXT.\n\nSource: sxt.v_validator_monthly (ClickHouse view)\nReset at the start of each month; compare across months in the bar chart below."
         },
         {
-          "title": "\u2605 Monthly own yield",
+          "title": "★ Monthly own yield",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2284,7 +2284,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY OWN YIELD (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-yield\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-yield[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY OWN YIELD (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-yield\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-yield[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2309,7 +2309,7 @@
           "description": "Own-stake yield (non-commission portion) for the current month, in SXT.\n\nSource: sxt.v_validator_monthly (yield_sxt column)\nProportional to the validator's own bonded stake."
         },
         {
-          "title": "\u2605 Monthly total",
+          "title": "★ Monthly total",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2344,7 +2344,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY TOTAL (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-total\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-total[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY TOTAL (SXT)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-total\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-total[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2369,7 +2369,7 @@
           "description": "Sum of commission + own yield for the current month, in SXT.\n\nSource: sxt.v_validator_monthly (total_sxt column)\nPrimary top-line monthly revenue figure."
         },
         {
-          "title": "\u2605 Monthly total (USD)",
+          "title": "★ Monthly total (USD)",
           "type": "marcusolsson-dynamictext-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2404,7 +2404,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY TOTAL (USD)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-usd\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-usd[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='\u2014';return;}el.textContent=n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MONTHLY TOTAL (USD)</p><p class=\"sxt-num sxt-num--md sxt-fmt-m-usd\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-m-usd[data-raw]').forEach(function(el){var r=el.getAttribute('data-raw').replace(/[^0-9.-]/g,'');var n=parseFloat(r);if(isNaN(n)){el.textContent='—';return;}el.textContent=n.toLocaleString('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -2426,7 +2426,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Monthly total SXT earnings converted to USD at current price.\n\nSource: sxt.v_validator_monthly.total_sxt \u00d7 sxt.price_history (latest)\nVolatile with SXT price; the SXT-denominated figure is more stable."
+          "description": "Monthly total SXT earnings converted to USD at current price.\n\nSource: sxt.v_validator_monthly.total_sxt × sxt.price_history (latest)\nVolatile with SXT price; the SXT-denominated figure is more stable."
         },
         {
           "title": "Earnings per era",
@@ -2515,7 +2515,7 @@
           "description": "Monthly aggregates of commission and own yield.\n\nSource: sxt.v_validator_monthly\nUseful for tax/bookkeeping. Select Earnings view (SXT / USD / combined) via toolbar."
         },
         {
-          "title": "\u2605 Total stake over time",
+          "title": "★ Total stake over time",
           "type": "volkovlabs-echarts-panel",
           "datasource": "ClickHouse",
           "gridPos": {
@@ -2561,7 +2561,7 @@
       "description": "Drill-down by validator (selected via the dropdown above): earnings, commission, own yield, APR, stake history, block production."
     },
     {
-      "title": "\u2b22 This validator",
+      "title": "⬢ This validator",
       "type": "row",
       "collapsed": true,
       "gridPos": {
@@ -2935,7 +2935,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Total stake converted to USD at the current SXT price.\n\nSource: total_stake \u00d7 sxt_token_price_usd (cross-metric)\nUSD figure for reports; SXT-denominated is more stable."
+          "description": "Total stake converted to USD at the current SXT price.\n\nSource: total_stake × sxt_token_price_usd (cross-metric)\nUSD figure for reports; SXT-denominated is more stable."
         },
         {
           "title": "Own stake",
@@ -3180,7 +3180,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Era points earned by this validator as % of the network average for the current era.\n\nSource: era_points / scalar(total_era_points / target_validator_count) \u00d7 100\nHealthy \u226595%. Below 85% suggests missed authorship opportunities or slow propagation."
+          "description": "Era points earned by this validator as % of the network average for the current era.\n\nSource: era_points / scalar(total_era_points / target_validator_count) × 100\nHealthy ≥95%. Below 85% suggests missed authorship opportunities or slow propagation."
         },
         {
           "title": "Block heights",
@@ -3478,7 +3478,7 @@
               "range": true
             }
           ],
-          "description": "Inbound and outbound libp2p traffic at the substrate node process level.\n\nSource: rate(substrate_sub_libp2p_network_bytes_total[5m]).\nThis is the node's process-level traffic; compare with Host machine \u2192 Network I/O for host-wide context.",
+          "description": "Inbound and outbound libp2p traffic at the substrate node process level.\n\nSource: rate(substrate_sub_libp2p_network_bytes_total[5m]).\nThis is the node's process-level traffic; compare with Host machine → Network I/O for host-wide context.",
           "fieldConfig": {
             "defaults": {},
             "overrides": []
@@ -3506,7 +3506,7 @@
       "description": "Metrics from the local node we are connected to: peers, BABE/GRANDPA health, proposal & import times, bandwidth, gossip."
     },
     {
-      "title": "\u2b22 Host machine",
+      "title": "⬢ Host machine",
       "type": "row",
       "collapsed": true,
       "gridPos": {
@@ -3553,7 +3553,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">HOST STATUS</p><span class=\"sxt-pill sxt-pill-host\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-host').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='\u2014';return;}var state=(!(n &gt;= 1))?'bad':((false)?'warn':'ok');var cfg={ok:{t:'UP',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'\u2014',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'DOWN',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">HOST STATUS</p><span class=\"sxt-pill sxt-pill-host\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">—</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-host').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='—';return;}var state=(!(n &gt;= 1))?'bad':((false)?'warn':'ok');var cfg={ok:{t:'UP',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'—',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'DOWN',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3614,7 +3614,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK /sxt-data</p><span class=\"sxt-pill sxt-pill-disk\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-disk').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='\u2014';return;}var state=(n &gt;= 90)?'bad':((n &gt;= 80)?'warn':'ok');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'WARNING',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'CRITICAL',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK /sxt-data</p><span class=\"sxt-pill sxt-pill-disk\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">—</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-disk').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='—';return;}var state=(n &gt;= 90)?'bad':((n &gt;= 80)?'warn':'ok');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'WARNING',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'CRITICAL',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3636,7 +3636,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Used-space health on /sxt-data (the validator DB partition).\n\nSource: (1 - avail / size) \u00d7 100 on mountpoint='/sxt-data'\nGreen <80%, amber 80-90%, red \u226590%. Critical at 95% (risk of DB halt)."
+          "description": "Used-space health on /sxt-data (the validator DB partition).\n\nSource: (1 - avail / size) × 100 on mountpoint='/sxt-data'\nGreen <80%, amber 80-90%, red ≥90%. Critical at 95% (risk of DB halt)."
         },
         {
           "title": "Memory health",
@@ -3675,7 +3675,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MEMORY</p><span class=\"sxt-pill sxt-pill-memory\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-memory').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='\u2014';return;}var state=(n &gt;= 90)?'bad':((n &gt;= 80)?'warn':'ok');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'WARNING',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'PRESSURE',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">MEMORY</p><span class=\"sxt-pill sxt-pill-memory\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">—</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-memory').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='—';return;}var state=(n &gt;= 90)?'bad':((n &gt;= 80)?'warn':'ok');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'WARNING',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'PRESSURE',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3697,7 +3697,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Memory pressure health on the host.\n\nSource: (1 - MemAvailable / MemTotal) \u00d7 100\nGreen <80%, amber 80-90%, red \u226590%. Includes cache/buffers as 'available'."
+          "description": "Memory pressure health on the host.\n\nSource: (1 - MemAvailable / MemTotal) × 100\nGreen <80%, amber 80-90%, red ≥90%. Includes cache/buffers as 'available'."
         },
         {
           "title": "Load health",
@@ -3736,7 +3736,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">SYSTEM LOAD</p><span class=\"sxt-pill sxt-pill-load\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">\u2014</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-load').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='\u2014';return;}var state=(n &gt;= 2)?'bad':((n &gt;= 1)?'warn':'ok');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'ELEVATED',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'OVERLOADED',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">SYSTEM LOAD</p><span class=\"sxt-pill sxt-pill-load\" data-raw=\"{{value}}\"><span class=\"sxt-pill-dot\"></span><span class=\"sxt-pill-text\">—</span></span></div><img src=\"x\" onerror=\"document.querySelectorAll('span.sxt-pill-load').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));var dot=el.querySelector('.sxt-pill-dot');var txt=el.querySelector('.sxt-pill-text');if(isNaN(n)){txt.textContent='—';return;}var state=(n &gt;= 2)?'bad':((n &gt;= 1)?'warn':'ok');var cfg={ok:{t:'HEALTHY',c:'#00C853',bg:'rgba(0,200,83,0.15)'},warn:{t:'ELEVATED',c:'#FFB300',bg:'rgba(255,179,0,0.15)'},bad:{t:'OVERLOADED',c:'#FF5252',bg:'rgba(255,82,82,0.15)'}};var c=cfg[state];txt.textContent=c.t;dot.style.background=c.c;el.style.color=c.c;el.style.background=c.bg;})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3758,7 +3758,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "System load normalized per CPU core.\n\nSource: node_load1 / scalar(cpu_count)\nGreen <1 (CPUs idle enough), amber 1-2 (saturation), red \u22652 (overload)."
+          "description": "System load normalized per CPU core.\n\nSource: node_load1 / scalar(cpu_count)\nGreen <1 (CPUs idle enough), amber 1-2 (saturation), red ≥2 (overload)."
         },
         {
           "title": "CPU usage",
@@ -3797,7 +3797,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU USAGE</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU USAGE</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3819,7 +3819,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Current CPU utilization across all cores.\n\nSource: (1 - avg rate of mode='idle') \u00d7 100\nSubstrate nodes typically sit at 5-20%. Sustained >70% warrants investigation."
+          "description": "Current CPU utilization across all cores.\n\nSource: (1 - avg rate of mode='idle') × 100\nSubstrate nodes typically sit at 5-20%. Sustained >70% warrants investigation."
         },
         {
           "title": "RAM used",
@@ -3858,7 +3858,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">RAM USED</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">RAM USED</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3880,7 +3880,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "RAM utilization as percent of total.\n\nSource: (1 - MemAvailable / MemTotal) \u00d7 100\nLinux aggressively caches filesystem data; 50-70% steady is normal."
+          "description": "RAM utilization as percent of total.\n\nSource: (1 - MemAvailable / MemTotal) × 100\nLinux aggressively caches filesystem data; 50-70% steady is normal."
         },
         {
           "title": "Disk used",
@@ -3919,7 +3919,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK /sxt-data</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK /sxt-data</p><p class=\"sxt-num sxt-num--md sxt-fmt-pct\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-pct').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}el.textContent=n.toFixed(1)+' %';el.style.color=(n &lt; 80)?'#E6E6E6':((n &lt; 90)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -3941,7 +3941,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Used space on /sxt-data as percent of the partition.\n\nSource: (1 - avail / size) \u00d7 100 on mountpoint='/sxt-data'\nChain state grows continuously. Plan pruning or expansion at 85%."
+          "description": "Used space on /sxt-data as percent of the partition.\n\nSource: (1 - avail / size) × 100 on mountpoint='/sxt-data'\nChain state grows continuously. Plan pruning or expansion at 85%."
         },
         {
           "title": "Network RX",
@@ -3980,7 +3980,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">NET RX</p><p class=\"sxt-num sxt-num--md sxt-fmt-bytes\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-bytes').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}var mb=n/1048576;el.textContent=(mb &gt;= 1)?(mb.toFixed(1)+' MB/s'):((n/1024).toFixed(0)+' KB/s');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">NET RX</p><p class=\"sxt-num sxt-num--md sxt-fmt-bytes\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-bytes').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}var mb=n/1048576;el.textContent=(mb &gt;= 1)?(mb.toFixed(1)+' MB/s'):((n/1024).toFixed(0)+' KB/s');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -4041,7 +4041,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">NET TX</p><p class=\"sxt-num sxt-num--md sxt-fmt-bytes\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-bytes').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}var mb=n/1048576;el.textContent=(mb &gt;= 1)?(mb.toFixed(1)+' MB/s'):((n/1024).toFixed(0)+' KB/s');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">NET TX</p><p class=\"sxt-num sxt-num--md sxt-fmt-bytes\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-bytes').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}var mb=n/1048576;el.textContent=(mb &gt;= 1)?(mb.toFixed(1)+' MB/s'):((n/1024).toFixed(0)+' KB/s');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -4102,7 +4102,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">UPTIME</p><p class=\"sxt-num sxt-num--md sxt-fmt-uptime\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-uptime').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}var d=Math.floor(n/86400),h=Math.floor((n%86400)/3600),m=Math.floor((n%3600)/60);el.textContent=(d &gt; 0?d+'d ':'')+h+'h '+m+'m';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">UPTIME</p><p class=\"sxt-num sxt-num--md sxt-fmt-uptime\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-uptime').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}var d=Math.floor(n/86400),h=Math.floor((n%86400)/3600),m=Math.floor((n%3600)/60);el.textContent=(d &gt; 0?d+'d ':'')+h+'h '+m+'m';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -4224,7 +4224,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">RAM TOTAL</p><p class=\"sxt-num sxt-num--md sxt-fmt-gb\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-gb').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US')+' GB';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">RAM TOTAL</p><p class=\"sxt-num sxt-num--md sxt-fmt-gb\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-gb').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US')+' GB';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -4285,7 +4285,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK TOTAL</p><p class=\"sxt-num sxt-num--md sxt-fmt-gb\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-gb').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=Math.round(n).toLocaleString('en-US')+' GB';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">DISK TOTAL</p><p class=\"sxt-num sxt-num--md sxt-fmt-gb\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-gb').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}el.textContent=Math.round(n).toLocaleString('en-US')+' GB';})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -4346,7 +4346,7 @@
             "overrides": []
           },
           "options": {
-            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU TEMP</p><p class=\"sxt-num sxt-num--md sxt-fmt-temp\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-temp').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='\u2014';return;}el.textContent=n.toFixed(0)+' \u00b0C';el.style.color=(n &lt; 70)?'#E6E6E6':((n &lt; 85)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
+            "content": "<div class=\"sxt-card sxt-card--centered\"><p class=\"sxt-label\">CPU TEMP</p><p class=\"sxt-num sxt-num--md sxt-fmt-temp\" data-raw=\"{{value}}\">{{value}}</p></div><img src=\"x\" onerror=\"document.querySelectorAll('p.sxt-fmt-temp').forEach(function(el){var n=parseFloat(el.getAttribute('data-raw'));if(isNaN(n) &amp;&amp; n &gt;= 0){el.textContent='—';return;}el.textContent=n.toFixed(0)+' °C';el.style.color=(n &lt; 70)?'#E6E6E6':((n &lt; 85)?'#FFB300':'#FF5252');})\" style=\"display:none\"><style>.sxt-card--centered { display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:6px; height:100%; }.sxt-card--centered .sxt-label, .sxt-card--centered .sxt-num { margin:0; }.sxt-pill { display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:12px; font-weight:600; font-size:11px; }.sxt-pill-dot { width:8px; height:8px; border-radius:50%; }</style>",
             "defaultContent": "",
             "everyRow": true,
             "renderMode": "everyRow",
@@ -4368,7 +4368,7 @@
             "styles": "",
             "contentPartials": []
           },
-          "description": "Average CPU temperature across hwmon sensors.\n\nSource: avg of node_hwmon_temp_celsius\nGreen <70\u00b0C, amber 70-85\u00b0C, red \u226585\u00b0C (thermal throttling risk)."
+          "description": "Average CPU temperature across hwmon sensors.\n\nSource: avg of node_hwmon_temp_celsius\nGreen <70°C, amber 70-85°C, red ≥85°C (thermal throttling risk)."
         },
         {
           "title": "CPU over time",
@@ -4677,7 +4677,7 @@
           "value": "__SXT_DATA_MOUNTPOINT__"
         },
         "hide": 2,
-        "description": "Mountpoint for disk usage gauge \u2014 override in dashboard settings"
+        "description": "Mountpoint for disk usage gauge — override in dashboard settings"
       },
       {
         "name": "earnings_view",
