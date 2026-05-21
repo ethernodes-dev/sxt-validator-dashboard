@@ -795,7 +795,17 @@ def collect_staking_deep():
             store.clear_labeled(metric_name)
 
         _fetch_validator_names()  # Fetch once before iterating validators
+        _active_names = set()
         for addr in active_addrs:
+            # Mark active BEFORE any stake query: being in Session.Validators
+            # is the definition of active. Don't let a failed/empty stake
+            # query (common right after an era boundary) drop the flag.
+            _vname_active = _get_validator_name(addr)
+            _active_names.add(_vname_active)
+            store.set_labeled("sxt_validator_active",
+                              {"address": _vname_active},
+                              1.0,
+                              "Whether validator is in the active set", "gauge")
             try:
                 overview = sub.query("Staking", "ErasStakersOverview", [active_era, addr])
                 if overview and overview.value:
@@ -835,10 +845,6 @@ def collect_staking_deep():
                                   {"address": vname},
                                   commission,
                                   "Validator commission (%)", "gauge")
-                store.set_labeled("sxt_validator_active",
-                                  {"address": vname},
-                                  1.0,
-                                  "Whether validator is in the active set", "gauge")
 
             except Exception:
                 log.debug("Failed staking query for %s", addr[:16])
@@ -847,6 +853,12 @@ def collect_staking_deep():
         for addr, info in all_validators.items():
             if not info["active"]:
                 vname = _get_validator_name(addr)
+                # Skip if this name is already marked active. Multi-address
+                # operators (one active + several waiting addresses sharing a
+                # name) must not have their active=1 overwritten by a sibling
+                # waiting address resolving to the same name.
+                if vname in _active_names:
+                    continue
                 store.set_labeled("sxt_validator_active",
                                   {"address": vname},
                                   0.0,
