@@ -177,6 +177,9 @@ button[aria-expanded] span[role="heading"],
   width: 100%;
   height: 100%;
   box-sizing: border-box;
+  /* Container-query context so .sxt-num can scale with the card width
+     (prevents big numbers being clipped on narrow laptop screens). */
+  container-type: inline-size;
   padding: 16px 18px;
   background: var(--sxt-bg-elevated);
   border: 1px solid var(--sxt-border);
@@ -253,11 +256,11 @@ button[aria-expanded] span[role="heading"],
   line-height: 1;
   margin: 0;
 }
-.sxt-num--sm  { font-size: 18px; }
-.sxt-num--md  { font-size: 24px; }
-.sxt-num--lg  { font-size: 32px; }
-.sxt-num--xl  { font-size: 40px; font-weight: 700; }
-.sxt-num--2xl { font-size: 48px; font-weight: 700; }
+.sxt-num--sm  { font-size: clamp(12px, 9cqi, 18px); }
+.sxt-num--md  { font-size: clamp(14px, 12cqi, 24px); }
+.sxt-num--lg  { font-size: clamp(16px, 15cqi, 32px); }
+.sxt-num--xl  { font-size: clamp(18px, 18cqi, 40px); font-weight: 700; }
+.sxt-num--2xl { font-size: clamp(20px, 22cqi, 48px); font-weight: 700; }
 
 /* Gradient fill text — for hero numbers */
 .sxt-num--gradient {
