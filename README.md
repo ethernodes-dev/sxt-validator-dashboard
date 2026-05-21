@@ -69,28 +69,27 @@ host.
 
 ## Architecture
 
-```
-   ┌──────────────────────────┐         ┌─────────────────────────┐
-   │  SXT validator host      │         │  Dashboard host         │
-   │  (your node)             │         │                         │
-   │                          │         │  ┌────────────────────┐ │
-   │  ┌──────────────────┐    │         │  │  sxt-exporter      │ │
-   │  │  SXT node        ├────┼─ 9615 ──┼──┤  (Python)          │ │
-   │  │  --prometheus-   │    │  HTTP   │  │  reads stake,      │ │
-   │  │   external       │    │         │  │  rewards via RPC   │ │
-   │  └──────────────────┘    │         │  └────────┬───────────┘ │
-   │                          │         │           │             │
-   │  ┌──────────────────┐    │         │  ┌────────▼───────────┐ │
-   │  │  node_exporter   ├────┼─ 9100 ──┤  │  Prometheus        │ │
-   │  └──────────────────┘    │  HTTP   │  │  + ClickHouse      │ │
-   └──────────────────────────┘         │  │  (time-series DB)  │ │
-                                        │  └────────┬───────────┘ │
-                                        │           │             │
-                                        │  ┌────────▼───────────┐ │
-                                        │  │  Grafana           │ │
-                                        │  │  (visualization)   │ │
-                                        │  └────────────────────┘ │
-                                        └─────────────────────────┘
+```mermaid
+flowchart LR
+    subgraph VH["SXT validator host"]
+        NODE["SXT node<br/>--prometheus-external<br/>:9615 metrics · :9944 RPC"]
+        NE["node_exporter<br/>:9100"]
+    end
+
+    subgraph DH["Dashboard host"]
+        EXP["sxt-exporter (Python)<br/>reads RPC, exposes :9502<br/>writes history to ClickHouse"]
+        PROM["Prometheus<br/>:9090"]
+        CH[("ClickHouse<br/>time-series DB")]
+        GRAF["Grafana<br/>:3000"]
+    end
+
+    NODE -- "RPC :9944" --> EXP
+    NODE -- "scrape :9615" --> PROM
+    NE -- "scrape :9100" --> PROM
+    EXP -- "scrape :9502" --> PROM
+    EXP -- "history" --> CH
+    PROM -- "real-time" --> GRAF
+    CH -- "historical" --> GRAF
 ```
 
 **Two data stores by design:**
