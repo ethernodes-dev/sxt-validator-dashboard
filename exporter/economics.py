@@ -40,7 +40,6 @@ _price_last_fetch = 0.0
 _price_consecutive_failures = 0
 _ch_last_era_written = -1
 _prev_stakes: dict[str, float] = {}
-_era_start_cache: dict[str, int] = {}
 _substrate_econ = None
 _econ_reconnects_total = 0
 
@@ -58,58 +57,17 @@ _current_price = {
 # ---------------------------------------------------------------------------
 
 
-def _get_era_timestamp(sub, era: int) -> str:
-    """Calculate the real timestamp for a given era using ActiveEra start time.
-    Computes era duration dynamically from ErasStartSessionIndex rather than
-    assuming a fixed 86400s per era."""
-    cache_key = "active_era_start"
-    if cache_key not in _era_start_cache:
-        try:
-            ae = sub.query("Staking", "ActiveEra")
-            if ae and ae.value:
-                _era_start_cache["current_era"] = ae.value["index"]
-                _era_start_cache[cache_key] = ae.value.get("start", 0)
-                if isinstance(_era_start_cache[cache_key], int) and _era_start_cache[cache_key] > 1e12:
-                    _era_start_cache[cache_key] = _era_start_cache[cache_key] // 1000
-        except Exception:
-            pass
+def _era_now_timestamp() -> str:
+    """Timestamp for the era currently being written.
 
-    # Compute actual era duration from session indices + block time
-    if "era_duration" not in _era_start_cache:
-        _era_start_cache["era_duration"] = 86400  # fallback
-        try:
-            active = _era_start_cache.get("current_era", 0)
-            if active > 1:
-                s_cur = sub.query("Staking", "ErasStartSessionIndex", [active])
-                s_prev = sub.query("Staking", "ErasStartSessionIndex", [active - 1])
-                if s_cur and s_prev and s_cur.value and s_prev.value:
-                    sessions_per_era = s_cur.value - s_prev.value
-                    # EpochDuration (slots per session) × block time (ms)
-                    epoch_data = sub.query("Babe", "EpochConfig")
-                    block_time_ms = 6000  # default Substrate 6s blocks
-                    try:
-                        bt = sub.query("Timestamp", "MinimumPeriod")
-                        if bt and bt.value:
-                            block_time_ms = bt.value * 2  # MinimumPeriod = half of expected block time
-                    except Exception:
-                        pass
-                    epoch_duration = sub.get_constant("Babe", "EpochDuration")
-                    if epoch_duration:
-                        slots = epoch_duration.value if hasattr(epoch_duration, 'value') else int(epoch_duration)
-                        era_secs = (sessions_per_era * slots * block_time_ms) // 1000
-                        if era_secs > 0:
-                            _era_start_cache["era_duration"] = era_secs
-                            log.info("Era duration computed: %ds (%d sessions × %d slots × %dms)",
-                                     era_secs, sessions_per_era, slots, block_time_ms)
-        except Exception:
-            log.debug("Could not compute era duration, using fallback 86400s")
-
-    current_era = _era_start_cache.get("current_era", 0)
-    era_start = _era_start_cache.get(cache_key, 0)
-    era_duration = _era_start_cache.get("era_duration", 86400)
-    if era_start > 0 and current_era > 0:
-        era_ts = era_start - ((current_era - era) * era_duration)
-        return datetime.fromtimestamp(era_ts, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    The live exporter only ever persists the *current* era (it writes once
+    per era change, see the guard in collect_economics). That era is in
+    progress right now, so the correct timestamp is simply the present
+    moment. We deliberately do NOT extrapolate from ActiveEra.start with a
+    fixed era duration — real eras don't space evenly, and that drift used
+    to push recent data into future months. Historical eras are timestamped
+    separately by scripts/backfill.py, which reads Timestamp.Now on-chain at
+    each era's start block."""
     return datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
 
 
@@ -354,8 +312,7 @@ def post_staking_hook(store) -> None:
         return
     _ch_last_era_written = era
 
-    sub = _get_substrate()
-    now = _get_era_timestamp(sub, era) if sub else datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+    now = _era_now_timestamp()
     era_total_points = int(store.get_value("sxt_staking_era_total_reward_points", 0))
 
     # era_snapshots
